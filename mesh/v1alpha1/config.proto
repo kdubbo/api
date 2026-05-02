@@ -25,8 +25,8 @@ import "proxy.proto";
 
 option go_package = "/api/mesh/v1alpha1";
 
-// MeshGlobalSetup defines mesh-wide settings for the Dubbo service mesh.
-message MeshGlobalSetup {
+// MeshConfig defines mesh-wide runtime settings for the Dubbo service mesh.
+message MeshConfig {
   google.protobuf.Duration connect_timeout = 1;
 
   ProxyConfig default_config = 2;

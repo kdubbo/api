@@ -6,25 +6,25 @@ import (
 	jsonpb "github.com/golang/protobuf/jsonpb"
 )
 
-// MarshalJSON is a custom marshaler for MeshGlobalSetup
-func (this *MeshGlobalSetup) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for MeshConfig
+func (this *MeshConfig) MarshalJSON() ([]byte, error) {
 	str, err := ConfigMarshaler.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for MeshGlobalSetup
-func (this *MeshGlobalSetup) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for MeshConfig
+func (this *MeshConfig) UnmarshalJSON(b []byte) error {
 	return ConfigUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for MeshGlobalSetup_CertificateData
-func (this *MeshGlobalSetup_CertificateData) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for MeshConfig_CertificateData
+func (this *MeshConfig_CertificateData) MarshalJSON() ([]byte, error) {
 	str, err := ConfigMarshaler.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for MeshGlobalSetup_CertificateData
-func (this *MeshGlobalSetup_CertificateData) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for MeshConfig_CertificateData
+func (this *MeshConfig_CertificateData) UnmarshalJSON(b []byte) error {
 	return ConfigUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 

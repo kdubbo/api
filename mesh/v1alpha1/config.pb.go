@@ -40,40 +40,40 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// MeshGlobalSetup defines mesh-wide settings for the Dubbo service mesh.
-type MeshGlobalSetup struct {
-	state                          protoimpl.MessageState             `protogen:"open.v1"`
-	ConnectTimeout                 *durationpb.Duration               `protobuf:"bytes,1,opt,name=connect_timeout,json=connectTimeout,proto3" json:"connect_timeout,omitempty"`
-	DefaultConfig                  *ProxyConfig                       `protobuf:"bytes,2,opt,name=default_config,json=defaultConfig,proto3" json:"default_config,omitempty"`
-	ConfigSources                  []*ConfigSource                    `protobuf:"bytes,3,rep,name=config_sources,json=configSources,proto3" json:"config_sources,omitempty"`
-	TrustDomain                    string                             `protobuf:"bytes,4,opt,name=trust_domain,json=trustDomain,proto3" json:"trust_domain,omitempty"`
-	TrustDomainAliases             []string                           `protobuf:"bytes,5,rep,name=trust_domain_aliases,json=trustDomainAliases,proto3" json:"trust_domain_aliases,omitempty"`
-	CaCertificates                 []*MeshGlobalSetup_CertificateData `protobuf:"bytes,6,rep,name=ca_certificates,json=caCertificates,proto3" json:"ca_certificates,omitempty"`
-	DefaultServiceExportTo         []string                           `protobuf:"bytes,7,rep,name=default_service_export_to,json=defaultServiceExportTo,proto3" json:"default_service_export_to,omitempty"`
-	DefaultVirtualServiceExportTo  []string                           `protobuf:"bytes,8,rep,name=default_virtual_service_export_to,json=defaultVirtualServiceExportTo,proto3" json:"default_virtual_service_export_to,omitempty"`
-	DefaultDestinationRuleExportTo []string                           `protobuf:"bytes,9,rep,name=default_destination_rule_export_to,json=defaultDestinationRuleExportTo,proto3" json:"default_destination_rule_export_to,omitempty"`
-	RootNamespace                  string                             `protobuf:"bytes,10,opt,name=root_namespace,json=rootNamespace,proto3" json:"root_namespace,omitempty"`
-	DnsRefreshRate                 *durationpb.Duration               `protobuf:"bytes,11,opt,name=dns_refresh_rate,json=dnsRefreshRate,proto3" json:"dns_refresh_rate,omitempty"`
+// MeshConfig defines mesh-wide runtime settings for the Dubbo service mesh.
+type MeshConfig struct {
+	state                          protoimpl.MessageState        `protogen:"open.v1"`
+	ConnectTimeout                 *durationpb.Duration          `protobuf:"bytes,1,opt,name=connect_timeout,json=connectTimeout,proto3" json:"connect_timeout,omitempty"`
+	DefaultConfig                  *ProxyConfig                  `protobuf:"bytes,2,opt,name=default_config,json=defaultConfig,proto3" json:"default_config,omitempty"`
+	ConfigSources                  []*ConfigSource               `protobuf:"bytes,3,rep,name=config_sources,json=configSources,proto3" json:"config_sources,omitempty"`
+	TrustDomain                    string                        `protobuf:"bytes,4,opt,name=trust_domain,json=trustDomain,proto3" json:"trust_domain,omitempty"`
+	TrustDomainAliases             []string                      `protobuf:"bytes,5,rep,name=trust_domain_aliases,json=trustDomainAliases,proto3" json:"trust_domain_aliases,omitempty"`
+	CaCertificates                 []*MeshConfig_CertificateData `protobuf:"bytes,6,rep,name=ca_certificates,json=caCertificates,proto3" json:"ca_certificates,omitempty"`
+	DefaultServiceExportTo         []string                      `protobuf:"bytes,7,rep,name=default_service_export_to,json=defaultServiceExportTo,proto3" json:"default_service_export_to,omitempty"`
+	DefaultVirtualServiceExportTo  []string                      `protobuf:"bytes,8,rep,name=default_virtual_service_export_to,json=defaultVirtualServiceExportTo,proto3" json:"default_virtual_service_export_to,omitempty"`
+	DefaultDestinationRuleExportTo []string                      `protobuf:"bytes,9,rep,name=default_destination_rule_export_to,json=defaultDestinationRuleExportTo,proto3" json:"default_destination_rule_export_to,omitempty"`
+	RootNamespace                  string                        `protobuf:"bytes,10,opt,name=root_namespace,json=rootNamespace,proto3" json:"root_namespace,omitempty"`
+	DnsRefreshRate                 *durationpb.Duration          `protobuf:"bytes,11,opt,name=dns_refresh_rate,json=dnsRefreshRate,proto3" json:"dns_refresh_rate,omitempty"`
 	// Deprecated: Marked as deprecated in config.proto.
 	Certificates  []*Certificate `protobuf:"bytes,12,rep,name=certificates,proto3" json:"certificates,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *MeshGlobalSetup) Reset() {
-	*x = MeshGlobalSetup{}
+func (x *MeshConfig) Reset() {
+	*x = MeshConfig{}
 	mi := &file_config_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MeshGlobalSetup) String() string {
+func (x *MeshConfig) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MeshGlobalSetup) ProtoMessage() {}
+func (*MeshConfig) ProtoMessage() {}
 
-func (x *MeshGlobalSetup) ProtoReflect() protoreflect.Message {
+func (x *MeshConfig) ProtoReflect() protoreflect.Message {
 	mi := &file_config_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -85,82 +85,82 @@ func (x *MeshGlobalSetup) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MeshGlobalSetup.ProtoReflect.Descriptor instead.
-func (*MeshGlobalSetup) Descriptor() ([]byte, []int) {
+// Deprecated: Use MeshConfig.ProtoReflect.Descriptor instead.
+func (*MeshConfig) Descriptor() ([]byte, []int) {
 	return file_config_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *MeshGlobalSetup) GetConnectTimeout() *durationpb.Duration {
+func (x *MeshConfig) GetConnectTimeout() *durationpb.Duration {
 	if x != nil {
 		return x.ConnectTimeout
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup) GetDefaultConfig() *ProxyConfig {
+func (x *MeshConfig) GetDefaultConfig() *ProxyConfig {
 	if x != nil {
 		return x.DefaultConfig
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup) GetConfigSources() []*ConfigSource {
+func (x *MeshConfig) GetConfigSources() []*ConfigSource {
 	if x != nil {
 		return x.ConfigSources
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup) GetTrustDomain() string {
+func (x *MeshConfig) GetTrustDomain() string {
 	if x != nil {
 		return x.TrustDomain
 	}
 	return ""
 }
 
-func (x *MeshGlobalSetup) GetTrustDomainAliases() []string {
+func (x *MeshConfig) GetTrustDomainAliases() []string {
 	if x != nil {
 		return x.TrustDomainAliases
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup) GetCaCertificates() []*MeshGlobalSetup_CertificateData {
+func (x *MeshConfig) GetCaCertificates() []*MeshConfig_CertificateData {
 	if x != nil {
 		return x.CaCertificates
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup) GetDefaultServiceExportTo() []string {
+func (x *MeshConfig) GetDefaultServiceExportTo() []string {
 	if x != nil {
 		return x.DefaultServiceExportTo
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup) GetDefaultVirtualServiceExportTo() []string {
+func (x *MeshConfig) GetDefaultVirtualServiceExportTo() []string {
 	if x != nil {
 		return x.DefaultVirtualServiceExportTo
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup) GetDefaultDestinationRuleExportTo() []string {
+func (x *MeshConfig) GetDefaultDestinationRuleExportTo() []string {
 	if x != nil {
 		return x.DefaultDestinationRuleExportTo
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup) GetRootNamespace() string {
+func (x *MeshConfig) GetRootNamespace() string {
 	if x != nil {
 		return x.RootNamespace
 	}
 	return ""
 }
 
-func (x *MeshGlobalSetup) GetDnsRefreshRate() *durationpb.Duration {
+func (x *MeshConfig) GetDnsRefreshRate() *durationpb.Duration {
 	if x != nil {
 		return x.DnsRefreshRate
 	}
@@ -168,7 +168,7 @@ func (x *MeshGlobalSetup) GetDnsRefreshRate() *durationpb.Duration {
 }
 
 // Deprecated: Marked as deprecated in config.proto.
-func (x *MeshGlobalSetup) GetCertificates() []*Certificate {
+func (x *MeshConfig) GetCertificates() []*Certificate {
 	if x != nil {
 		return x.Certificates
 	}
@@ -388,33 +388,33 @@ func (x *Certificate) GetDnsNames() []string {
 	return nil
 }
 
-type MeshGlobalSetup_CertificateData struct {
+type MeshConfig_CertificateData struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to CertificateData:
 	//
-	//	*MeshGlobalSetup_CertificateData_Pem
-	//	*MeshGlobalSetup_CertificateData_SpiffeBundleUrl
-	CertificateData isMeshGlobalSetup_CertificateData_CertificateData `protobuf_oneof:"certificate_data"`
-	CertSigners     []string                                          `protobuf:"bytes,3,rep,name=cert_signers,json=certSigners,proto3" json:"cert_signers,omitempty"`
-	TrustDomains    []string                                          `protobuf:"bytes,4,rep,name=trust_domains,json=trustDomains,proto3" json:"trust_domains,omitempty"`
+	//	*MeshConfig_CertificateData_Pem
+	//	*MeshConfig_CertificateData_SpiffeBundleUrl
+	CertificateData isMeshConfig_CertificateData_CertificateData `protobuf_oneof:"certificate_data"`
+	CertSigners     []string                                     `protobuf:"bytes,3,rep,name=cert_signers,json=certSigners,proto3" json:"cert_signers,omitempty"`
+	TrustDomains    []string                                     `protobuf:"bytes,4,rep,name=trust_domains,json=trustDomains,proto3" json:"trust_domains,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *MeshGlobalSetup_CertificateData) Reset() {
-	*x = MeshGlobalSetup_CertificateData{}
+func (x *MeshConfig_CertificateData) Reset() {
+	*x = MeshConfig_CertificateData{}
 	mi := &file_config_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MeshGlobalSetup_CertificateData) String() string {
+func (x *MeshConfig_CertificateData) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MeshGlobalSetup_CertificateData) ProtoMessage() {}
+func (*MeshConfig_CertificateData) ProtoMessage() {}
 
-func (x *MeshGlobalSetup_CertificateData) ProtoReflect() protoreflect.Message {
+func (x *MeshConfig_CertificateData) ProtoReflect() protoreflect.Message {
 	mi := &file_config_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -426,79 +426,79 @@ func (x *MeshGlobalSetup_CertificateData) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MeshGlobalSetup_CertificateData.ProtoReflect.Descriptor instead.
-func (*MeshGlobalSetup_CertificateData) Descriptor() ([]byte, []int) {
+// Deprecated: Use MeshConfig_CertificateData.ProtoReflect.Descriptor instead.
+func (*MeshConfig_CertificateData) Descriptor() ([]byte, []int) {
 	return file_config_proto_rawDescGZIP(), []int{0, 0}
 }
 
-func (x *MeshGlobalSetup_CertificateData) GetCertificateData() isMeshGlobalSetup_CertificateData_CertificateData {
+func (x *MeshConfig_CertificateData) GetCertificateData() isMeshConfig_CertificateData_CertificateData {
 	if x != nil {
 		return x.CertificateData
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup_CertificateData) GetPem() string {
+func (x *MeshConfig_CertificateData) GetPem() string {
 	if x != nil {
-		if x, ok := x.CertificateData.(*MeshGlobalSetup_CertificateData_Pem); ok {
+		if x, ok := x.CertificateData.(*MeshConfig_CertificateData_Pem); ok {
 			return x.Pem
 		}
 	}
 	return ""
 }
 
-func (x *MeshGlobalSetup_CertificateData) GetSpiffeBundleUrl() string {
+func (x *MeshConfig_CertificateData) GetSpiffeBundleUrl() string {
 	if x != nil {
-		if x, ok := x.CertificateData.(*MeshGlobalSetup_CertificateData_SpiffeBundleUrl); ok {
+		if x, ok := x.CertificateData.(*MeshConfig_CertificateData_SpiffeBundleUrl); ok {
 			return x.SpiffeBundleUrl
 		}
 	}
 	return ""
 }
 
-func (x *MeshGlobalSetup_CertificateData) GetCertSigners() []string {
+func (x *MeshConfig_CertificateData) GetCertSigners() []string {
 	if x != nil {
 		return x.CertSigners
 	}
 	return nil
 }
 
-func (x *MeshGlobalSetup_CertificateData) GetTrustDomains() []string {
+func (x *MeshConfig_CertificateData) GetTrustDomains() []string {
 	if x != nil {
 		return x.TrustDomains
 	}
 	return nil
 }
 
-type isMeshGlobalSetup_CertificateData_CertificateData interface {
-	isMeshGlobalSetup_CertificateData_CertificateData()
+type isMeshConfig_CertificateData_CertificateData interface {
+	isMeshConfig_CertificateData_CertificateData()
 }
 
-type MeshGlobalSetup_CertificateData_Pem struct {
+type MeshConfig_CertificateData_Pem struct {
 	Pem string `protobuf:"bytes,1,opt,name=pem,proto3,oneof"`
 }
 
-type MeshGlobalSetup_CertificateData_SpiffeBundleUrl struct {
+type MeshConfig_CertificateData_SpiffeBundleUrl struct {
 	SpiffeBundleUrl string `protobuf:"bytes,2,opt,name=spiffe_bundle_url,json=spiffeBundleUrl,proto3,oneof"`
 }
 
-func (*MeshGlobalSetup_CertificateData_Pem) isMeshGlobalSetup_CertificateData_CertificateData() {}
+func (*MeshConfig_CertificateData_Pem) isMeshConfig_CertificateData_CertificateData() {}
 
-func (*MeshGlobalSetup_CertificateData_SpiffeBundleUrl) isMeshGlobalSetup_CertificateData_CertificateData() {
-}
+func (*MeshConfig_CertificateData_SpiffeBundleUrl) isMeshConfig_CertificateData_CertificateData() {}
 
 var File_config_proto protoreflect.FileDescriptor
 
 const file_config_proto_rawDesc = "" +
 	"\n" +
-	"\fconfig.proto\x12\x13dubbo.mesh.v1alpha1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\vproxy.proto\"\xd5\a\n" +
-	"\x0fMeshGlobalSetup\x12B\n" +
+	"\fconfig.proto\x12\x13dubbo.mesh.v1alpha1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\vproxy.proto\"\xcb\a\n" +
+	"\n" +
+	"MeshConfig\x12B\n" +
 	"\x0fconnect_timeout\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x0econnectTimeout\x12G\n" +
 	"\x0edefault_config\x18\x02 \x01(\v2 .dubbo.mesh.v1alpha1.ProxyConfigR\rdefaultConfig\x12H\n" +
 	"\x0econfig_sources\x18\x03 \x03(\v2!.dubbo.mesh.v1alpha1.ConfigSourceR\rconfigSources\x12!\n" +
 	"\ftrust_domain\x18\x04 \x01(\tR\vtrustDomain\x120\n" +
-	"\x14trust_domain_aliases\x18\x05 \x03(\tR\x12trustDomainAliases\x12]\n" +
-	"\x0fca_certificates\x18\x06 \x03(\v24.dubbo.mesh.v1alpha1.MeshGlobalSetup.CertificateDataR\x0ecaCertificates\x129\n" +
+	"\x14trust_domain_aliases\x18\x05 \x03(\tR\x12trustDomainAliases\x12X\n" +
+	"\x0fca_certificates\x18\x06 \x03(\v2/.dubbo.mesh.v1alpha1.MeshConfig.CertificateDataR\x0ecaCertificates\x129\n" +
 	"\x19default_service_export_to\x18\a \x03(\tR\x16defaultServiceExportTo\x12H\n" +
 	"!default_virtual_service_export_to\x18\b \x03(\tR\x1ddefaultVirtualServiceExportTo\x12J\n" +
 	"\"default_destination_rule_export_to\x18\t \x03(\tR\x1edefaultDestinationRuleExportTo\x12%\n" +
@@ -543,23 +543,23 @@ func file_config_proto_rawDescGZIP() []byte {
 
 var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_config_proto_goTypes = []any{
-	(*MeshGlobalSetup)(nil),                 // 0: dubbo.mesh.v1alpha1.MeshGlobalSetup
-	(*LabelSelector)(nil),                   // 1: dubbo.mesh.v1alpha1.LabelSelector
-	(*LabelSelectorRequirement)(nil),        // 2: dubbo.mesh.v1alpha1.LabelSelectorRequirement
-	(*ConfigSource)(nil),                    // 3: dubbo.mesh.v1alpha1.ConfigSource
-	(*Certificate)(nil),                     // 4: dubbo.mesh.v1alpha1.Certificate
-	(*MeshGlobalSetup_CertificateData)(nil), // 5: dubbo.mesh.v1alpha1.MeshGlobalSetup.CertificateData
-	nil,                                     // 6: dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
-	(*durationpb.Duration)(nil),             // 7: google.protobuf.Duration
-	(*ProxyConfig)(nil),                     // 8: dubbo.mesh.v1alpha1.ProxyConfig
+	(*MeshConfig)(nil),                 // 0: dubbo.mesh.v1alpha1.MeshConfig
+	(*LabelSelector)(nil),              // 1: dubbo.mesh.v1alpha1.LabelSelector
+	(*LabelSelectorRequirement)(nil),   // 2: dubbo.mesh.v1alpha1.LabelSelectorRequirement
+	(*ConfigSource)(nil),               // 3: dubbo.mesh.v1alpha1.ConfigSource
+	(*Certificate)(nil),                // 4: dubbo.mesh.v1alpha1.Certificate
+	(*MeshConfig_CertificateData)(nil), // 5: dubbo.mesh.v1alpha1.MeshConfig.CertificateData
+	nil,                                // 6: dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
+	(*durationpb.Duration)(nil),        // 7: google.protobuf.Duration
+	(*ProxyConfig)(nil),                // 8: dubbo.mesh.v1alpha1.ProxyConfig
 }
 var file_config_proto_depIdxs = []int32{
-	7, // 0: dubbo.mesh.v1alpha1.MeshGlobalSetup.connect_timeout:type_name -> google.protobuf.Duration
-	8, // 1: dubbo.mesh.v1alpha1.MeshGlobalSetup.default_config:type_name -> dubbo.mesh.v1alpha1.ProxyConfig
-	3, // 2: dubbo.mesh.v1alpha1.MeshGlobalSetup.config_sources:type_name -> dubbo.mesh.v1alpha1.ConfigSource
-	5, // 3: dubbo.mesh.v1alpha1.MeshGlobalSetup.ca_certificates:type_name -> dubbo.mesh.v1alpha1.MeshGlobalSetup.CertificateData
-	7, // 4: dubbo.mesh.v1alpha1.MeshGlobalSetup.dns_refresh_rate:type_name -> google.protobuf.Duration
-	4, // 5: dubbo.mesh.v1alpha1.MeshGlobalSetup.certificates:type_name -> dubbo.mesh.v1alpha1.Certificate
+	7, // 0: dubbo.mesh.v1alpha1.MeshConfig.connect_timeout:type_name -> google.protobuf.Duration
+	8, // 1: dubbo.mesh.v1alpha1.MeshConfig.default_config:type_name -> dubbo.mesh.v1alpha1.ProxyConfig
+	3, // 2: dubbo.mesh.v1alpha1.MeshConfig.config_sources:type_name -> dubbo.mesh.v1alpha1.ConfigSource
+	5, // 3: dubbo.mesh.v1alpha1.MeshConfig.ca_certificates:type_name -> dubbo.mesh.v1alpha1.MeshConfig.CertificateData
+	7, // 4: dubbo.mesh.v1alpha1.MeshConfig.dns_refresh_rate:type_name -> google.protobuf.Duration
+	4, // 5: dubbo.mesh.v1alpha1.MeshConfig.certificates:type_name -> dubbo.mesh.v1alpha1.Certificate
 	6, // 6: dubbo.mesh.v1alpha1.LabelSelector.matchLabels:type_name -> dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
 	2, // 7: dubbo.mesh.v1alpha1.LabelSelector.matchExpressions:type_name -> dubbo.mesh.v1alpha1.LabelSelectorRequirement
 	8, // [8:8] is the sub-list for method output_type
@@ -576,8 +576,8 @@ func file_config_proto_init() {
 	}
 	file_proxy_proto_init()
 	file_config_proto_msgTypes[5].OneofWrappers = []any{
-		(*MeshGlobalSetup_CertificateData_Pem)(nil),
-		(*MeshGlobalSetup_CertificateData_SpiffeBundleUrl)(nil),
+		(*MeshConfig_CertificateData_Pem)(nil),
+		(*MeshConfig_CertificateData_SpiffeBundleUrl)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

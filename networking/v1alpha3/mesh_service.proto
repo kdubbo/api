@@ -1,0 +1,109 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// $schema: dubbo.networking.v1alpha3.MeshService
+// $title: Mesh Service
+// $description: Service-to-service routing and traffic policy.
+
+package dubbo.networking.v1alpha3;
+
+import "google/api/field_behavior.proto";
+import "networking/v1alpha3/destination_rule.proto";
+
+option go_package = "/api/networking/v1alpha3";
+
+// MeshService combines route rules and traffic policies for service-to-service traffic.
+//
+// <!-- crd generation tags
+// +cue-gen:MeshService:groupName:networking.dubbo.apache.org
+// +cue-gen:MeshService:versions:v1alpha3
+// +cue-gen:MeshService:annotations:helm.sh/resource-policy=keep
+// +cue-gen:MeshService:labels:app=dubbo,chart=dubbo,heritage=Tiller,release=dubbo
+// +cue-gen:MeshService:subresource:status
+// +cue-gen:MeshService:scope:Namespaced
+// +cue-gen:MeshService:resource:categories=dubbo,networking,shortNames=ms
+// +cue-gen:MeshService:printerColumn:name=Hosts,type=string,JSONPath=.spec.hosts,description="The destination hosts to which service traffic is being sent"
+// +cue-gen:MeshService:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp
+// representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations.
+// Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+// Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata"
+// +cue-gen:MeshService:preserveUnknownFields:false
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=networking.dubbo.apache.org/v1alpha3
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+message MeshService {
+  // Hosts addressed by this service-to-service policy.
+  repeated string hosts = 1;
+
+  // Namespaces that can see this mesh service. "." means the same namespace and "*" means every namespace.
+  repeated string visible_to = 2;
+
+  // Match rules for selecting traffic.
+  MeshServiceRules rules = 3;
+
+  // Ordered route entries.
+  repeated MeshServiceRoute routes = 4;
+
+  // Default traffic policy for every destination in this MeshService.
+  TrafficPolicy traffic_policy = 5;
+}
+
+message MeshServiceRules {
+  // Multiple match entries are ORed; fields inside one match entry are ANDed.
+  repeated HTTPMatchRequest match = 1;
+}
+
+message HTTPMatchRequest {
+  StringMatch uri = 1;
+  map<string, StringMatch> headers = 2;
+  StringMatch method = 3;
+  map<string, StringMatch> query_params = 4;
+  uint32 port = 5;
+}
+
+message StringMatch {
+  oneof match_type {
+    string exact = 1;
+    string prefix = 2;
+    string regex = 3;
+  }
+}
+
+message MeshServiceRoute {
+  // One route entry can split traffic across multiple services.
+  repeated ServiceDestination service = 1;
+}
+
+message ServiceDestination {
+  string name = 1;
+  string host = 2 [(google.api.field_behavior) = REQUIRED];
+  ServicePort port = 3;
+  map<string, string> labels = 4;
+  int32 weight = 5;
+  TrafficPolicy traffic_policy = 6;
+}
+
+message ServicePort {
+  uint32 number = 1;
+  string name = 2;
+}
