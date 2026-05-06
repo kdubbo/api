@@ -55,9 +55,6 @@ message MeshService {
   // Hosts addressed by this service-to-service policy.
   repeated string hosts = 1;
 
-  // Namespaces that can see this mesh service. "." means the same namespace and "*" means every namespace.
-  repeated string visible_to = 2;
-
   // Match rules for selecting traffic.
   MeshServiceRules rules = 3;
 

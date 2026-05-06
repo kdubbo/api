@@ -70,8 +70,6 @@ type MeshService struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Hosts addressed by this service-to-service policy.
 	Hosts []string `protobuf:"bytes,1,rep,name=hosts,proto3" json:"hosts,omitempty"`
-	// Namespaces that can see this mesh service. "." means the same namespace and "*" means every namespace.
-	VisibleTo []string `protobuf:"bytes,2,rep,name=visible_to,json=visibleTo,proto3" json:"visible_to,omitempty"`
 	// Match rules for selecting traffic.
 	Rules *MeshServiceRules `protobuf:"bytes,3,opt,name=rules,proto3" json:"rules,omitempty"`
 	// Ordered route entries.
@@ -115,13 +113,6 @@ func (*MeshService) Descriptor() ([]byte, []int) {
 func (x *MeshService) GetHosts() []string {
 	if x != nil {
 		return x.Hosts
-	}
-	return nil
-}
-
-func (x *MeshService) GetVisibleTo() []string {
-	if x != nil {
-		return x.VisibleTo
 	}
 	return nil
 }
@@ -551,11 +542,9 @@ var File_networking_v1alpha3_mesh_service_proto protoreflect.FileDescriptor
 
 const file_networking_v1alpha3_mesh_service_proto_rawDesc = "" +
 	"\n" +
-	"&networking/v1alpha3/mesh_service.proto\x12\x19dubbo.networking.v1alpha3\x1a\x1fgoogle/api/field_behavior.proto\x1a*networking/v1alpha3/destination_rule.proto\"\x9b\x02\n" +
+	"&networking/v1alpha3/mesh_service.proto\x12\x19dubbo.networking.v1alpha3\x1a\x1fgoogle/api/field_behavior.proto\x1a*networking/v1alpha3/destination_rule.proto\"\xfc\x01\n" +
 	"\vMeshService\x12\x14\n" +
-	"\x05hosts\x18\x01 \x03(\tR\x05hosts\x12\x1d\n" +
-	"\n" +
-	"visible_to\x18\x02 \x03(\tR\tvisibleTo\x12A\n" +
+	"\x05hosts\x18\x01 \x03(\tR\x05hosts\x12A\n" +
 	"\x05rules\x18\x03 \x01(\v2+.dubbo.networking.v1alpha3.MeshServiceRulesR\x05rules\x12C\n" +
 	"\x06routes\x18\x04 \x03(\v2+.dubbo.networking.v1alpha3.MeshServiceRouteR\x06routes\x12O\n" +
 	"\x0etraffic_policy\x18\x05 \x01(\v2(.dubbo.networking.v1alpha3.TrafficPolicyR\rtrafficPolicy\"U\n" +
