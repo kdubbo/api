@@ -24,8 +24,12 @@ import (
 
 func TestMeshServiceJSONRoundTrip(t *testing.T) {
 	in := &MeshService{
-		Hosts:     []string{"nginx.app.svc.cluster.local"},
-		VisibleTo: []string{"."},
+		Hosts: []string{"nginx.app.svc.cluster.local"},
+		TrafficPolicy: &TrafficPolicy{
+			Tls: &ClientTLSSettings{
+				Mode: ClientTLSSettings_DUBBO_MUTUAL,
+			},
+		},
 		Routes: []*MeshServiceRoute{
 			{
 				Service: []*ServiceDestination{
@@ -52,13 +56,21 @@ func TestMeshServiceJSONRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(raw), `"visibleTo"`) {
-		t.Fatalf("MeshService JSON = %s, want visibleTo field", raw)
+	oldCamel := "visible" + "To"
+	oldSnake := "visible" + "_to"
+	if strings.Contains(string(raw), oldCamel) || strings.Contains(string(raw), oldSnake) {
+		t.Fatalf("MeshService JSON = %s, must not contain removed visibility fields", raw)
+	}
+	if !strings.Contains(string(raw), `"trafficPolicy"`) {
+		t.Fatalf("MeshService JSON = %s, want trafficPolicy field", raw)
 	}
 
 	var out MeshService
 	if err := json.Unmarshal(raw, &out); err != nil {
 		t.Fatal(err)
+	}
+	if got := out.GetTrafficPolicy().GetTls().GetMode(); got != ClientTLSSettings_DUBBO_MUTUAL {
+		t.Fatalf("tls mode = %v, want DUBBO_MUTUAL", got)
 	}
 	if got := out.GetRoutes()[0].GetService()[1].GetLabels()["version"]; got != "v2" {
 		t.Fatalf("route label = %q, want v2", got)
