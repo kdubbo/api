@@ -1,0 +1,101 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// $schema: dubbo.security.v1alpha3.AuthorizationPolicy
+// $title: AuthorizationPolicy
+// $description: Authorization policy configuration for workloads.
+
+package dubbo.security.v1alpha3;
+
+import "type/v1alpha3/selector.proto";
+
+option go_package = "/api/security/v1alpha3";
+
+// AuthorizationPolicy defines request authorization policies.
+//
+// <!-- crd generation tags
+// +cue-gen:AuthorizationPolicy:groupName:security.dubbo.apache.org
+// +cue-gen:AuthorizationPolicy:versions:v1alpha3
+// +cue-gen:AuthorizationPolicy:storageVersion
+// +cue-gen:AuthorizationPolicy:annotations:helm.sh/resource-policy=keep
+// +cue-gen:AuthorizationPolicy:labels:app=dubbo,chart=dubbo,dubbo=security,heritage=Tiller,release=dubbo
+// +cue-gen:AuthorizationPolicy:subresource:status
+// +cue-gen:AuthorizationPolicy:scope:Namespaced
+// +cue-gen:AuthorizationPolicy:resource:categories=dubbo,security,shortNames=ap
+// +cue-gen:AuthorizationPolicy:preserveUnknownFields:false
+// +cue-gen:AuthorizationPolicy:printerColumn:name=Action,type=string,JSONPath=.spec.action,description="The authorization action."
+// +cue-gen:AuthorizationPolicy:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp
+// representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations.
+// Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+// Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata"
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=security.dubbo.apache.org/v1alpha3
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+message AuthorizationPolicy {
+  enum Action {
+    // Allow requests that match any rule.
+    ALLOW = 0;
+    // Deny requests that match any rule.
+    DENY = 1;
+  }
+
+  // The selector determines the workloads to apply the authorization policy on.
+  // If not set, the policy applies to all workloads in the same namespace.
+  dubbo.type.v1alpha3.WorkloadSelector selector = 1;
+
+  // The action to take if a request matches the rules.
+  Action action = 2;
+
+  // Authorization rules. For ALLOW policies, no matching rule means the request
+  // is denied.
+  repeated Rule rules = 3;
+}
+
+message Rule {
+  // Sources of a request.
+  repeated From from = 1;
+
+  // Additional conditions that must match.
+  repeated Condition when = 2;
+}
+
+message From {
+  // Source attributes.
+  Source source = 1;
+}
+
+message Source {
+  // Request identities derived from validated JWT issuer and subject.
+  repeated string request_principals = 1;
+}
+
+message Condition {
+  // Attribute key. For JWT claims, use request.auth.claims[claim-name].
+  string key = 1;
+
+  // Allowed values.
+  repeated string values = 2;
+
+  // Disallowed values.
+  repeated string not_values = 3;
+}
