@@ -87,14 +87,17 @@ message StringMatch {
 }
 
 message MeshServiceRoute {
-  // One route entry can split traffic across multiple services.
+  // One route entry can split traffic across multiple service destinations.
   repeated ServiceDestination service = 1;
 }
 
 message ServiceDestination {
+  // Name is the target Kubernetes Service for service-based traffic splitting. When labels are set, name is used as the subset name.
   string name = 1;
+  // Host is the host addressed by this route policy. Label-based destinations use host plus labels; service-based destinations resolve name to the target Service host.
   string host = 2 [(google.api.field_behavior) = REQUIRED];
   ServicePort port = 3;
+  // Labels select a subset of endpoints behind host. If labels are empty, traffic is split by service name instead of endpoint labels.
   map<string, string> labels = 4;
   int32 weight = 5;
   TrafficPolicy traffic_policy = 6;

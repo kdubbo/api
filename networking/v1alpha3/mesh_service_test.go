@@ -79,3 +79,44 @@ func TestMeshServiceJSONRoundTrip(t *testing.T) {
 		t.Fatalf("route weight = %d, want 80", got)
 	}
 }
+
+func TestMeshServiceJSONRoundTripServiceWeight(t *testing.T) {
+	in := &MeshService{
+		Hosts: []string{"reviews.default.svc.cluster.local"},
+		Routes: []*MeshServiceRoute{
+			{
+				Service: []*ServiceDestination{
+					{
+						Name:   "reviews-1",
+						Host:   "reviews.default.svc.cluster.local",
+						Weight: 20,
+					},
+					{
+						Name:   "reviews-2",
+						Host:   "reviews.default.svc.cluster.local",
+						Weight: 80,
+					},
+				},
+			},
+		},
+	}
+
+	raw, err := json.Marshal(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var out MeshService
+	if err := json.Unmarshal(raw, &out); err != nil {
+		t.Fatal(err)
+	}
+	if got := out.GetRoutes()[0].GetService()[0].GetName(); got != "reviews-1" {
+		t.Fatalf("service name = %q, want reviews-1", got)
+	}
+	if got := out.GetRoutes()[0].GetService()[0].GetLabels(); len(got) != 0 {
+		t.Fatalf("service labels = %v, want empty labels for service mode", got)
+	}
+	if got := out.GetRoutes()[0].GetService()[1].GetWeight(); got != 80 {
+		t.Fatalf("service weight = %d, want 80", got)
+	}
+}
