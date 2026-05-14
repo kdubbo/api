@@ -70,9 +70,9 @@ type MeshService struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Hosts addressed by this service-to-service policy.
 	Hosts []string `protobuf:"bytes,1,rep,name=hosts,proto3" json:"hosts,omitempty"`
-	// Match rules for selecting traffic.
-	Rules *MeshServiceRules `protobuf:"bytes,3,opt,name=rules,proto3" json:"rules,omitempty"`
-	// Ordered route entries.
+	// Ordered routing rules. Place exact rules first, broad rules next, and fallback routes last.
+	Rules []*MeshServiceRule `protobuf:"bytes,3,rep,name=rules,proto3" json:"rules,omitempty"`
+	// Ordered fallback route entries. This field keeps older service-weight routing manifests working.
 	Routes []*MeshServiceRoute `protobuf:"bytes,4,rep,name=routes,proto3" json:"routes,omitempty"`
 	// Default traffic policy for every destination in this MeshService.
 	TrafficPolicy *TrafficPolicy `protobuf:"bytes,5,opt,name=traffic_policy,json=trafficPolicy,proto3" json:"traffic_policy,omitempty"`
@@ -117,7 +117,7 @@ func (x *MeshService) GetHosts() []string {
 	return nil
 }
 
-func (x *MeshService) GetRules() *MeshServiceRules {
+func (x *MeshService) GetRules() []*MeshServiceRule {
 	if x != nil {
 		return x.Rules
 	}
@@ -138,28 +138,32 @@ func (x *MeshService) GetTrafficPolicy() *TrafficPolicy {
 	return nil
 }
 
-type MeshServiceRules struct {
+type MeshServiceRule struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Multiple match entries are ORed; fields inside one match entry are ANDed.
-	Match         []*HTTPMatchRequest `protobuf:"bytes,1,rep,name=match,proto3" json:"match,omitempty"`
+	// Match conditions for the primary route entries.
+	Match []*HTTPMatchRequest `protobuf:"bytes,1,rep,name=match,proto3" json:"match,omitempty"`
+	// Primary route entries used when match conditions are satisfied.
+	Route []*MeshServiceRoute `protobuf:"bytes,2,rep,name=route,proto3" json:"route,omitempty"`
+	// Fallback route entries used after primary match-specific routes.
+	Routes        []*MeshServiceRoute `protobuf:"bytes,3,rep,name=routes,proto3" json:"routes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *MeshServiceRules) Reset() {
-	*x = MeshServiceRules{}
+func (x *MeshServiceRule) Reset() {
+	*x = MeshServiceRule{}
 	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MeshServiceRules) String() string {
+func (x *MeshServiceRule) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MeshServiceRules) ProtoMessage() {}
+func (*MeshServiceRule) ProtoMessage() {}
 
-func (x *MeshServiceRules) ProtoReflect() protoreflect.Message {
+func (x *MeshServiceRule) ProtoReflect() protoreflect.Message {
 	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -171,195 +175,35 @@ func (x *MeshServiceRules) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MeshServiceRules.ProtoReflect.Descriptor instead.
-func (*MeshServiceRules) Descriptor() ([]byte, []int) {
+// Deprecated: Use MeshServiceRule.ProtoReflect.Descriptor instead.
+func (*MeshServiceRule) Descriptor() ([]byte, []int) {
 	return file_networking_v1alpha3_mesh_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *MeshServiceRules) GetMatch() []*HTTPMatchRequest {
+func (x *MeshServiceRule) GetMatch() []*HTTPMatchRequest {
 	if x != nil {
 		return x.Match
 	}
 	return nil
 }
 
-type HTTPMatchRequest struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Uri           *StringMatch            `protobuf:"bytes,1,opt,name=uri,proto3" json:"uri,omitempty"`
-	Headers       map[string]*StringMatch `protobuf:"bytes,2,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Method        *StringMatch            `protobuf:"bytes,3,opt,name=method,proto3" json:"method,omitempty"`
-	QueryParams   map[string]*StringMatch `protobuf:"bytes,4,rep,name=query_params,json=queryParams,proto3" json:"query_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Port          uint32                  `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HTTPMatchRequest) Reset() {
-	*x = HTTPMatchRequest{}
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HTTPMatchRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HTTPMatchRequest) ProtoMessage() {}
-
-func (x *HTTPMatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[2]
+func (x *MeshServiceRule) GetRoute() []*MeshServiceRoute {
 	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HTTPMatchRequest.ProtoReflect.Descriptor instead.
-func (*HTTPMatchRequest) Descriptor() ([]byte, []int) {
-	return file_networking_v1alpha3_mesh_service_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *HTTPMatchRequest) GetUri() *StringMatch {
-	if x != nil {
-		return x.Uri
+		return x.Route
 	}
 	return nil
 }
 
-func (x *HTTPMatchRequest) GetHeaders() map[string]*StringMatch {
+func (x *MeshServiceRule) GetRoutes() []*MeshServiceRoute {
 	if x != nil {
-		return x.Headers
+		return x.Routes
 	}
 	return nil
 }
-
-func (x *HTTPMatchRequest) GetMethod() *StringMatch {
-	if x != nil {
-		return x.Method
-	}
-	return nil
-}
-
-func (x *HTTPMatchRequest) GetQueryParams() map[string]*StringMatch {
-	if x != nil {
-		return x.QueryParams
-	}
-	return nil
-}
-
-func (x *HTTPMatchRequest) GetPort() uint32 {
-	if x != nil {
-		return x.Port
-	}
-	return 0
-}
-
-type StringMatch struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to MatchType:
-	//
-	//	*StringMatch_Exact
-	//	*StringMatch_Prefix
-	//	*StringMatch_Regex
-	MatchType     isStringMatch_MatchType `protobuf_oneof:"match_type"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *StringMatch) Reset() {
-	*x = StringMatch{}
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *StringMatch) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*StringMatch) ProtoMessage() {}
-
-func (x *StringMatch) ProtoReflect() protoreflect.Message {
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use StringMatch.ProtoReflect.Descriptor instead.
-func (*StringMatch) Descriptor() ([]byte, []int) {
-	return file_networking_v1alpha3_mesh_service_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *StringMatch) GetMatchType() isStringMatch_MatchType {
-	if x != nil {
-		return x.MatchType
-	}
-	return nil
-}
-
-func (x *StringMatch) GetExact() string {
-	if x != nil {
-		if x, ok := x.MatchType.(*StringMatch_Exact); ok {
-			return x.Exact
-		}
-	}
-	return ""
-}
-
-func (x *StringMatch) GetPrefix() string {
-	if x != nil {
-		if x, ok := x.MatchType.(*StringMatch_Prefix); ok {
-			return x.Prefix
-		}
-	}
-	return ""
-}
-
-func (x *StringMatch) GetRegex() string {
-	if x != nil {
-		if x, ok := x.MatchType.(*StringMatch_Regex); ok {
-			return x.Regex
-		}
-	}
-	return ""
-}
-
-type isStringMatch_MatchType interface {
-	isStringMatch_MatchType()
-}
-
-type StringMatch_Exact struct {
-	Exact string `protobuf:"bytes,1,opt,name=exact,proto3,oneof"`
-}
-
-type StringMatch_Prefix struct {
-	Prefix string `protobuf:"bytes,2,opt,name=prefix,proto3,oneof"`
-}
-
-type StringMatch_Regex struct {
-	Regex string `protobuf:"bytes,3,opt,name=regex,proto3,oneof"`
-}
-
-func (*StringMatch_Exact) isStringMatch_MatchType() {}
-
-func (*StringMatch_Prefix) isStringMatch_MatchType() {}
-
-func (*StringMatch_Regex) isStringMatch_MatchType() {}
 
 type MeshServiceRoute struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// One route entry can split traffic across multiple services.
+	// One route entry can split traffic across multiple service destinations.
 	Service       []*ServiceDestination `protobuf:"bytes,1,rep,name=service,proto3" json:"service,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -367,7 +211,7 @@ type MeshServiceRoute struct {
 
 func (x *MeshServiceRoute) Reset() {
 	*x = MeshServiceRoute{}
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[4]
+	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -379,7 +223,7 @@ func (x *MeshServiceRoute) String() string {
 func (*MeshServiceRoute) ProtoMessage() {}
 
 func (x *MeshServiceRoute) ProtoReflect() protoreflect.Message {
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[4]
+	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -392,7 +236,7 @@ func (x *MeshServiceRoute) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MeshServiceRoute.ProtoReflect.Descriptor instead.
 func (*MeshServiceRoute) Descriptor() ([]byte, []int) {
-	return file_networking_v1alpha3_mesh_service_proto_rawDescGZIP(), []int{4}
+	return file_networking_v1alpha3_mesh_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MeshServiceRoute) GetService() []*ServiceDestination {
@@ -403,20 +247,23 @@ func (x *MeshServiceRoute) GetService() []*ServiceDestination {
 }
 
 type ServiceDestination struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Host          string                 `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
-	Port          *ServicePort           `protobuf:"bytes,3,opt,name=port,proto3" json:"port,omitempty"`
-	Labels        map[string]string      `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Weight        int32                  `protobuf:"varint,5,opt,name=weight,proto3" json:"weight,omitempty"`
-	TrafficPolicy *TrafficPolicy         `protobuf:"bytes,6,opt,name=traffic_policy,json=trafficPolicy,proto3" json:"traffic_policy,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Name is the target Kubernetes Service for service-based traffic splitting. When labels are set, name is used as the subset name.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Host is the host addressed by this route policy. Label-based destinations use host plus labels; service-based destinations resolve name to the target Service host.
+	Host string       `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
+	Port *ServicePort `protobuf:"bytes,3,opt,name=port,proto3" json:"port,omitempty"`
+	// Labels select a subset of endpoints behind host. If labels are empty, traffic is split by service name instead of endpoint labels.
+	Labels        map[string]string `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Weight        int32             `protobuf:"varint,5,opt,name=weight,proto3" json:"weight,omitempty"`
+	TrafficPolicy *TrafficPolicy    `protobuf:"bytes,6,opt,name=traffic_policy,json=trafficPolicy,proto3" json:"traffic_policy,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ServiceDestination) Reset() {
 	*x = ServiceDestination{}
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[5]
+	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -428,7 +275,7 @@ func (x *ServiceDestination) String() string {
 func (*ServiceDestination) ProtoMessage() {}
 
 func (x *ServiceDestination) ProtoReflect() protoreflect.Message {
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[5]
+	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -441,7 +288,7 @@ func (x *ServiceDestination) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceDestination.ProtoReflect.Descriptor instead.
 func (*ServiceDestination) Descriptor() ([]byte, []int) {
-	return file_networking_v1alpha3_mesh_service_proto_rawDescGZIP(), []int{5}
+	return file_networking_v1alpha3_mesh_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ServiceDestination) GetName() string {
@@ -496,7 +343,7 @@ type ServicePort struct {
 
 func (x *ServicePort) Reset() {
 	*x = ServicePort{}
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[6]
+	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -508,7 +355,7 @@ func (x *ServicePort) String() string {
 func (*ServicePort) ProtoMessage() {}
 
 func (x *ServicePort) ProtoReflect() protoreflect.Message {
-	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[6]
+	mi := &file_networking_v1alpha3_mesh_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -521,7 +368,7 @@ func (x *ServicePort) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServicePort.ProtoReflect.Descriptor instead.
 func (*ServicePort) Descriptor() ([]byte, []int) {
-	return file_networking_v1alpha3_mesh_service_proto_rawDescGZIP(), []int{6}
+	return file_networking_v1alpha3_mesh_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ServicePort) GetNumber() uint32 {
@@ -542,32 +389,16 @@ var File_networking_v1alpha3_mesh_service_proto protoreflect.FileDescriptor
 
 const file_networking_v1alpha3_mesh_service_proto_rawDesc = "" +
 	"\n" +
-	"&networking/v1alpha3/mesh_service.proto\x12\x19dubbo.networking.v1alpha3\x1a\x1fgoogle/api/field_behavior.proto\x1a*networking/v1alpha3/destination_rule.proto\"\xfc\x01\n" +
+	"&networking/v1alpha3/mesh_service.proto\x12\x19dubbo.networking.v1alpha3\x1a\x1fgoogle/api/field_behavior.proto\x1a*networking/v1alpha3/destination_rule.proto\x1a)networking/v1alpha3/virtual_service.proto\"\xfb\x01\n" +
 	"\vMeshService\x12\x14\n" +
-	"\x05hosts\x18\x01 \x03(\tR\x05hosts\x12A\n" +
-	"\x05rules\x18\x03 \x01(\v2+.dubbo.networking.v1alpha3.MeshServiceRulesR\x05rules\x12C\n" +
+	"\x05hosts\x18\x01 \x03(\tR\x05hosts\x12@\n" +
+	"\x05rules\x18\x03 \x03(\v2*.dubbo.networking.v1alpha3.MeshServiceRuleR\x05rules\x12C\n" +
 	"\x06routes\x18\x04 \x03(\v2+.dubbo.networking.v1alpha3.MeshServiceRouteR\x06routes\x12O\n" +
-	"\x0etraffic_policy\x18\x05 \x01(\v2(.dubbo.networking.v1alpha3.TrafficPolicyR\rtrafficPolicy\"U\n" +
-	"\x10MeshServiceRules\x12A\n" +
-	"\x05match\x18\x01 \x03(\v2+.dubbo.networking.v1alpha3.HTTPMatchRequestR\x05match\"\xa1\x04\n" +
-	"\x10HTTPMatchRequest\x128\n" +
-	"\x03uri\x18\x01 \x01(\v2&.dubbo.networking.v1alpha3.StringMatchR\x03uri\x12R\n" +
-	"\aheaders\x18\x02 \x03(\v28.dubbo.networking.v1alpha3.HTTPMatchRequest.HeadersEntryR\aheaders\x12>\n" +
-	"\x06method\x18\x03 \x01(\v2&.dubbo.networking.v1alpha3.StringMatchR\x06method\x12_\n" +
-	"\fquery_params\x18\x04 \x03(\v2<.dubbo.networking.v1alpha3.HTTPMatchRequest.QueryParamsEntryR\vqueryParams\x12\x12\n" +
-	"\x04port\x18\x05 \x01(\rR\x04port\x1ab\n" +
-	"\fHeadersEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
-	"\x05value\x18\x02 \x01(\v2&.dubbo.networking.v1alpha3.StringMatchR\x05value:\x028\x01\x1af\n" +
-	"\x10QueryParamsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
-	"\x05value\x18\x02 \x01(\v2&.dubbo.networking.v1alpha3.StringMatchR\x05value:\x028\x01\"e\n" +
-	"\vStringMatch\x12\x16\n" +
-	"\x05exact\x18\x01 \x01(\tH\x00R\x05exact\x12\x18\n" +
-	"\x06prefix\x18\x02 \x01(\tH\x00R\x06prefix\x12\x16\n" +
-	"\x05regex\x18\x03 \x01(\tH\x00R\x05regexB\f\n" +
-	"\n" +
-	"match_type\"[\n" +
+	"\x0etraffic_policy\x18\x05 \x01(\v2(.dubbo.networking.v1alpha3.TrafficPolicyR\rtrafficPolicy\"\xdc\x01\n" +
+	"\x0fMeshServiceRule\x12A\n" +
+	"\x05match\x18\x01 \x03(\v2+.dubbo.networking.v1alpha3.HTTPMatchRequestR\x05match\x12A\n" +
+	"\x05route\x18\x02 \x03(\v2+.dubbo.networking.v1alpha3.MeshServiceRouteR\x05route\x12C\n" +
+	"\x06routes\x18\x03 \x03(\v2+.dubbo.networking.v1alpha3.MeshServiceRouteR\x06routes\"[\n" +
 	"\x10MeshServiceRoute\x12G\n" +
 	"\aservice\x18\x01 \x03(\v2-.dubbo.networking.v1alpha3.ServiceDestinationR\aservice\"\xf5\x02\n" +
 	"\x12ServiceDestination\x12\x12\n" +
@@ -596,40 +427,33 @@ func file_networking_v1alpha3_mesh_service_proto_rawDescGZIP() []byte {
 	return file_networking_v1alpha3_mesh_service_proto_rawDescData
 }
 
-var file_networking_v1alpha3_mesh_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_networking_v1alpha3_mesh_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_networking_v1alpha3_mesh_service_proto_goTypes = []any{
 	(*MeshService)(nil),        // 0: dubbo.networking.v1alpha3.MeshService
-	(*MeshServiceRules)(nil),   // 1: dubbo.networking.v1alpha3.MeshServiceRules
-	(*HTTPMatchRequest)(nil),   // 2: dubbo.networking.v1alpha3.HTTPMatchRequest
-	(*StringMatch)(nil),        // 3: dubbo.networking.v1alpha3.StringMatch
-	(*MeshServiceRoute)(nil),   // 4: dubbo.networking.v1alpha3.MeshServiceRoute
-	(*ServiceDestination)(nil), // 5: dubbo.networking.v1alpha3.ServiceDestination
-	(*ServicePort)(nil),        // 6: dubbo.networking.v1alpha3.ServicePort
-	nil,                        // 7: dubbo.networking.v1alpha3.HTTPMatchRequest.HeadersEntry
-	nil,                        // 8: dubbo.networking.v1alpha3.HTTPMatchRequest.QueryParamsEntry
-	nil,                        // 9: dubbo.networking.v1alpha3.ServiceDestination.LabelsEntry
-	(*TrafficPolicy)(nil),      // 10: dubbo.networking.v1alpha3.TrafficPolicy
+	(*MeshServiceRule)(nil),    // 1: dubbo.networking.v1alpha3.MeshServiceRule
+	(*MeshServiceRoute)(nil),   // 2: dubbo.networking.v1alpha3.MeshServiceRoute
+	(*ServiceDestination)(nil), // 3: dubbo.networking.v1alpha3.ServiceDestination
+	(*ServicePort)(nil),        // 4: dubbo.networking.v1alpha3.ServicePort
+	nil,                        // 5: dubbo.networking.v1alpha3.ServiceDestination.LabelsEntry
+	(*TrafficPolicy)(nil),      // 6: dubbo.networking.v1alpha3.TrafficPolicy
+	(*HTTPMatchRequest)(nil),   // 7: dubbo.networking.v1alpha3.HTTPMatchRequest
 }
 var file_networking_v1alpha3_mesh_service_proto_depIdxs = []int32{
-	1,  // 0: dubbo.networking.v1alpha3.MeshService.rules:type_name -> dubbo.networking.v1alpha3.MeshServiceRules
-	4,  // 1: dubbo.networking.v1alpha3.MeshService.routes:type_name -> dubbo.networking.v1alpha3.MeshServiceRoute
-	10, // 2: dubbo.networking.v1alpha3.MeshService.traffic_policy:type_name -> dubbo.networking.v1alpha3.TrafficPolicy
-	2,  // 3: dubbo.networking.v1alpha3.MeshServiceRules.match:type_name -> dubbo.networking.v1alpha3.HTTPMatchRequest
-	3,  // 4: dubbo.networking.v1alpha3.HTTPMatchRequest.uri:type_name -> dubbo.networking.v1alpha3.StringMatch
-	7,  // 5: dubbo.networking.v1alpha3.HTTPMatchRequest.headers:type_name -> dubbo.networking.v1alpha3.HTTPMatchRequest.HeadersEntry
-	3,  // 6: dubbo.networking.v1alpha3.HTTPMatchRequest.method:type_name -> dubbo.networking.v1alpha3.StringMatch
-	8,  // 7: dubbo.networking.v1alpha3.HTTPMatchRequest.query_params:type_name -> dubbo.networking.v1alpha3.HTTPMatchRequest.QueryParamsEntry
-	5,  // 8: dubbo.networking.v1alpha3.MeshServiceRoute.service:type_name -> dubbo.networking.v1alpha3.ServiceDestination
-	6,  // 9: dubbo.networking.v1alpha3.ServiceDestination.port:type_name -> dubbo.networking.v1alpha3.ServicePort
-	9,  // 10: dubbo.networking.v1alpha3.ServiceDestination.labels:type_name -> dubbo.networking.v1alpha3.ServiceDestination.LabelsEntry
-	10, // 11: dubbo.networking.v1alpha3.ServiceDestination.traffic_policy:type_name -> dubbo.networking.v1alpha3.TrafficPolicy
-	3,  // 12: dubbo.networking.v1alpha3.HTTPMatchRequest.HeadersEntry.value:type_name -> dubbo.networking.v1alpha3.StringMatch
-	3,  // 13: dubbo.networking.v1alpha3.HTTPMatchRequest.QueryParamsEntry.value:type_name -> dubbo.networking.v1alpha3.StringMatch
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	1,  // 0: dubbo.networking.v1alpha3.MeshService.rules:type_name -> dubbo.networking.v1alpha3.MeshServiceRule
+	2,  // 1: dubbo.networking.v1alpha3.MeshService.routes:type_name -> dubbo.networking.v1alpha3.MeshServiceRoute
+	6,  // 2: dubbo.networking.v1alpha3.MeshService.traffic_policy:type_name -> dubbo.networking.v1alpha3.TrafficPolicy
+	7,  // 3: dubbo.networking.v1alpha3.MeshServiceRule.match:type_name -> dubbo.networking.v1alpha3.HTTPMatchRequest
+	2,  // 4: dubbo.networking.v1alpha3.MeshServiceRule.route:type_name -> dubbo.networking.v1alpha3.MeshServiceRoute
+	2,  // 5: dubbo.networking.v1alpha3.MeshServiceRule.routes:type_name -> dubbo.networking.v1alpha3.MeshServiceRoute
+	3,  // 6: dubbo.networking.v1alpha3.MeshServiceRoute.service:type_name -> dubbo.networking.v1alpha3.ServiceDestination
+	4,  // 7: dubbo.networking.v1alpha3.ServiceDestination.port:type_name -> dubbo.networking.v1alpha3.ServicePort
+	5,  // 8: dubbo.networking.v1alpha3.ServiceDestination.labels:type_name -> dubbo.networking.v1alpha3.ServiceDestination.LabelsEntry
+	6,  // 9: dubbo.networking.v1alpha3.ServiceDestination.traffic_policy:type_name -> dubbo.networking.v1alpha3.TrafficPolicy
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_networking_v1alpha3_mesh_service_proto_init() }
@@ -638,18 +462,14 @@ func file_networking_v1alpha3_mesh_service_proto_init() {
 		return
 	}
 	file_networking_v1alpha3_destination_rule_proto_init()
-	file_networking_v1alpha3_mesh_service_proto_msgTypes[3].OneofWrappers = []any{
-		(*StringMatch_Exact)(nil),
-		(*StringMatch_Prefix)(nil),
-		(*StringMatch_Regex)(nil),
-	}
+	file_networking_v1alpha3_virtual_service_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_networking_v1alpha3_mesh_service_proto_rawDesc), len(file_networking_v1alpha3_mesh_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

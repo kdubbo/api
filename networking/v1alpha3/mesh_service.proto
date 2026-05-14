@@ -24,6 +24,7 @@ package dubbo.networking.v1alpha3;
 
 import "google/api/field_behavior.proto";
 import "networking/v1alpha3/destination_rule.proto";
+import "networking/v1alpha3/virtual_service.proto";
 
 option go_package = "/api/networking/v1alpha3";
 
@@ -55,35 +56,25 @@ message MeshService {
   // Hosts addressed by this service-to-service policy.
   repeated string hosts = 1;
 
-  // Match rules for selecting traffic.
-  MeshServiceRules rules = 3;
+  // Ordered routing rules. Place exact rules first, broad rules next, and fallback routes last.
+  repeated MeshServiceRule rules = 3;
 
-  // Ordered route entries.
+  // Ordered fallback route entries. This field keeps older service-weight routing manifests working.
   repeated MeshServiceRoute routes = 4;
 
   // Default traffic policy for every destination in this MeshService.
   TrafficPolicy traffic_policy = 5;
 }
 
-message MeshServiceRules {
-  // Multiple match entries are ORed; fields inside one match entry are ANDed.
+message MeshServiceRule {
+  // Match conditions for the primary route entries.
   repeated HTTPMatchRequest match = 1;
-}
 
-message HTTPMatchRequest {
-  StringMatch uri = 1;
-  map<string, StringMatch> headers = 2;
-  StringMatch method = 3;
-  map<string, StringMatch> query_params = 4;
-  uint32 port = 5;
-}
+  // Primary route entries used when match conditions are satisfied.
+  repeated MeshServiceRoute route = 2;
 
-message StringMatch {
-  oneof match_type {
-    string exact = 1;
-    string prefix = 2;
-    string regex = 3;
-  }
+  // Fallback route entries used after primary match-specific routes.
+  repeated MeshServiceRoute routes = 3;
 }
 
 message MeshServiceRoute {

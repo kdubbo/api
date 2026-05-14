@@ -181,6 +181,9 @@ func (x *Destination) GetSubset() string {
 // gRPC traffic. See VirtualService for usage examples.
 type HTTPRoute struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// Match conditions to be satisfied for the rule to be activated.
+	// Multiple match entries are ORed; fields inside one match entry are ANDed.
+	Match []*HTTPMatchRequest `protobuf:"bytes,2,rep,name=match,proto3" json:"match,omitempty"`
 	// A HTTP rule can either return a direct_response, redirect or forward (default) traffic.
 	// The forwarding target can be one of several versions of a service (see
 	// glossary in beginning of document). Weights associated with the
@@ -218,6 +221,13 @@ func (x *HTTPRoute) ProtoReflect() protoreflect.Message {
 // Deprecated: Use HTTPRoute.ProtoReflect.Descriptor instead.
 func (*HTTPRoute) Descriptor() ([]byte, []int) {
 	return file_networking_v1alpha3_virtual_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *HTTPRoute) GetMatch() []*HTTPMatchRequest {
+	if x != nil {
+		return x.Match
+	}
+	return nil
 }
 
 func (x *HTTPRoute) GetRoute() []*HTTPRouteDestination {
@@ -284,6 +294,188 @@ func (x *HTTPRouteDestination) GetWeight() int32 {
 	return 0
 }
 
+type HTTPMatchRequest struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Uri           *StringMatch            `protobuf:"bytes,1,opt,name=uri,proto3" json:"uri,omitempty"`
+	Headers       map[string]*StringMatch `protobuf:"bytes,2,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Method        *StringMatch            `protobuf:"bytes,3,opt,name=method,proto3" json:"method,omitempty"`
+	QueryParams   map[string]*StringMatch `protobuf:"bytes,4,rep,name=query_params,json=queryParams,proto3" json:"query_params,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Port          uint32                  `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
+	Host          *StringMatch            `protobuf:"bytes,6,opt,name=host,proto3" json:"host,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HTTPMatchRequest) Reset() {
+	*x = HTTPMatchRequest{}
+	mi := &file_networking_v1alpha3_virtual_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HTTPMatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HTTPMatchRequest) ProtoMessage() {}
+
+func (x *HTTPMatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_networking_v1alpha3_virtual_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HTTPMatchRequest.ProtoReflect.Descriptor instead.
+func (*HTTPMatchRequest) Descriptor() ([]byte, []int) {
+	return file_networking_v1alpha3_virtual_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *HTTPMatchRequest) GetUri() *StringMatch {
+	if x != nil {
+		return x.Uri
+	}
+	return nil
+}
+
+func (x *HTTPMatchRequest) GetHeaders() map[string]*StringMatch {
+	if x != nil {
+		return x.Headers
+	}
+	return nil
+}
+
+func (x *HTTPMatchRequest) GetMethod() *StringMatch {
+	if x != nil {
+		return x.Method
+	}
+	return nil
+}
+
+func (x *HTTPMatchRequest) GetQueryParams() map[string]*StringMatch {
+	if x != nil {
+		return x.QueryParams
+	}
+	return nil
+}
+
+func (x *HTTPMatchRequest) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+func (x *HTTPMatchRequest) GetHost() *StringMatch {
+	if x != nil {
+		return x.Host
+	}
+	return nil
+}
+
+type StringMatch struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to MatchType:
+	//
+	//	*StringMatch_Exact
+	//	*StringMatch_Prefix
+	//	*StringMatch_Regex
+	MatchType     isStringMatch_MatchType `protobuf_oneof:"match_type"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StringMatch) Reset() {
+	*x = StringMatch{}
+	mi := &file_networking_v1alpha3_virtual_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StringMatch) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StringMatch) ProtoMessage() {}
+
+func (x *StringMatch) ProtoReflect() protoreflect.Message {
+	mi := &file_networking_v1alpha3_virtual_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StringMatch.ProtoReflect.Descriptor instead.
+func (*StringMatch) Descriptor() ([]byte, []int) {
+	return file_networking_v1alpha3_virtual_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *StringMatch) GetMatchType() isStringMatch_MatchType {
+	if x != nil {
+		return x.MatchType
+	}
+	return nil
+}
+
+func (x *StringMatch) GetExact() string {
+	if x != nil {
+		if x, ok := x.MatchType.(*StringMatch_Exact); ok {
+			return x.Exact
+		}
+	}
+	return ""
+}
+
+func (x *StringMatch) GetPrefix() string {
+	if x != nil {
+		if x, ok := x.MatchType.(*StringMatch_Prefix); ok {
+			return x.Prefix
+		}
+	}
+	return ""
+}
+
+func (x *StringMatch) GetRegex() string {
+	if x != nil {
+		if x, ok := x.MatchType.(*StringMatch_Regex); ok {
+			return x.Regex
+		}
+	}
+	return ""
+}
+
+type isStringMatch_MatchType interface {
+	isStringMatch_MatchType()
+}
+
+type StringMatch_Exact struct {
+	Exact string `protobuf:"bytes,1,opt,name=exact,proto3,oneof"`
+}
+
+type StringMatch_Prefix struct {
+	Prefix string `protobuf:"bytes,2,opt,name=prefix,proto3,oneof"`
+}
+
+type StringMatch_Regex struct {
+	Regex string `protobuf:"bytes,3,opt,name=regex,proto3,oneof"`
+}
+
+func (*StringMatch_Exact) isStringMatch_MatchType() {}
+
+func (*StringMatch_Prefix) isStringMatch_MatchType() {}
+
+func (*StringMatch_Regex) isStringMatch_MatchType() {}
+
 var File_networking_v1alpha3_virtual_service_proto protoreflect.FileDescriptor
 
 const file_networking_v1alpha3_virtual_service_proto_rawDesc = "" +
@@ -295,12 +487,32 @@ const file_networking_v1alpha3_virtual_service_proto_rawDesc = "" +
 	"\texport_to\x18\x03 \x03(\tR\bexportTo\"?\n" +
 	"\vDestination\x12\x18\n" +
 	"\x04host\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x04host\x12\x16\n" +
-	"\x06subset\x18\x02 \x01(\tR\x06subset\"R\n" +
-	"\tHTTPRoute\x12E\n" +
+	"\x06subset\x18\x02 \x01(\tR\x06subset\"\x95\x01\n" +
+	"\tHTTPRoute\x12A\n" +
+	"\x05match\x18\x02 \x03(\v2+.dubbo.networking.v1alpha3.HTTPMatchRequestR\x05match\x12E\n" +
 	"\x05route\x18\x01 \x03(\v2/.dubbo.networking.v1alpha3.HTTPRouteDestinationR\x05route\"~\n" +
 	"\x14HTTPRouteDestination\x12N\n" +
 	"\vdestination\x18\x01 \x01(\v2&.dubbo.networking.v1alpha3.DestinationB\x04\xe2A\x01\x02R\vdestination\x12\x16\n" +
-	"\x06weight\x18\x02 \x01(\x05R\x06weightB\x1aZ\x18/api/networking/v1alpha3b\x06proto3"
+	"\x06weight\x18\x02 \x01(\x05R\x06weight\"\xdd\x04\n" +
+	"\x10HTTPMatchRequest\x128\n" +
+	"\x03uri\x18\x01 \x01(\v2&.dubbo.networking.v1alpha3.StringMatchR\x03uri\x12R\n" +
+	"\aheaders\x18\x02 \x03(\v28.dubbo.networking.v1alpha3.HTTPMatchRequest.HeadersEntryR\aheaders\x12>\n" +
+	"\x06method\x18\x03 \x01(\v2&.dubbo.networking.v1alpha3.StringMatchR\x06method\x12_\n" +
+	"\fquery_params\x18\x04 \x03(\v2<.dubbo.networking.v1alpha3.HTTPMatchRequest.QueryParamsEntryR\vqueryParams\x12\x12\n" +
+	"\x04port\x18\x05 \x01(\rR\x04port\x12:\n" +
+	"\x04host\x18\x06 \x01(\v2&.dubbo.networking.v1alpha3.StringMatchR\x04host\x1ab\n" +
+	"\fHeadersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
+	"\x05value\x18\x02 \x01(\v2&.dubbo.networking.v1alpha3.StringMatchR\x05value:\x028\x01\x1af\n" +
+	"\x10QueryParamsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
+	"\x05value\x18\x02 \x01(\v2&.dubbo.networking.v1alpha3.StringMatchR\x05value:\x028\x01\"e\n" +
+	"\vStringMatch\x12\x16\n" +
+	"\x05exact\x18\x01 \x01(\tH\x00R\x05exact\x12\x18\n" +
+	"\x06prefix\x18\x02 \x01(\tH\x00R\x06prefix\x12\x16\n" +
+	"\x05regex\x18\x03 \x01(\tH\x00R\x05regexB\f\n" +
+	"\n" +
+	"match_typeB\x1aZ\x18/api/networking/v1alpha3b\x06proto3"
 
 var (
 	file_networking_v1alpha3_virtual_service_proto_rawDescOnce sync.Once
@@ -314,22 +526,34 @@ func file_networking_v1alpha3_virtual_service_proto_rawDescGZIP() []byte {
 	return file_networking_v1alpha3_virtual_service_proto_rawDescData
 }
 
-var file_networking_v1alpha3_virtual_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_networking_v1alpha3_virtual_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_networking_v1alpha3_virtual_service_proto_goTypes = []any{
 	(*VirtualService)(nil),       // 0: dubbo.networking.v1alpha3.VirtualService
 	(*Destination)(nil),          // 1: dubbo.networking.v1alpha3.Destination
 	(*HTTPRoute)(nil),            // 2: dubbo.networking.v1alpha3.HTTPRoute
 	(*HTTPRouteDestination)(nil), // 3: dubbo.networking.v1alpha3.HTTPRouteDestination
+	(*HTTPMatchRequest)(nil),     // 4: dubbo.networking.v1alpha3.HTTPMatchRequest
+	(*StringMatch)(nil),          // 5: dubbo.networking.v1alpha3.StringMatch
+	nil,                          // 6: dubbo.networking.v1alpha3.HTTPMatchRequest.HeadersEntry
+	nil,                          // 7: dubbo.networking.v1alpha3.HTTPMatchRequest.QueryParamsEntry
 }
 var file_networking_v1alpha3_virtual_service_proto_depIdxs = []int32{
-	2, // 0: dubbo.networking.v1alpha3.VirtualService.http:type_name -> dubbo.networking.v1alpha3.HTTPRoute
-	3, // 1: dubbo.networking.v1alpha3.HTTPRoute.route:type_name -> dubbo.networking.v1alpha3.HTTPRouteDestination
-	1, // 2: dubbo.networking.v1alpha3.HTTPRouteDestination.destination:type_name -> dubbo.networking.v1alpha3.Destination
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	2,  // 0: dubbo.networking.v1alpha3.VirtualService.http:type_name -> dubbo.networking.v1alpha3.HTTPRoute
+	4,  // 1: dubbo.networking.v1alpha3.HTTPRoute.match:type_name -> dubbo.networking.v1alpha3.HTTPMatchRequest
+	3,  // 2: dubbo.networking.v1alpha3.HTTPRoute.route:type_name -> dubbo.networking.v1alpha3.HTTPRouteDestination
+	1,  // 3: dubbo.networking.v1alpha3.HTTPRouteDestination.destination:type_name -> dubbo.networking.v1alpha3.Destination
+	5,  // 4: dubbo.networking.v1alpha3.HTTPMatchRequest.uri:type_name -> dubbo.networking.v1alpha3.StringMatch
+	6,  // 5: dubbo.networking.v1alpha3.HTTPMatchRequest.headers:type_name -> dubbo.networking.v1alpha3.HTTPMatchRequest.HeadersEntry
+	5,  // 6: dubbo.networking.v1alpha3.HTTPMatchRequest.method:type_name -> dubbo.networking.v1alpha3.StringMatch
+	7,  // 7: dubbo.networking.v1alpha3.HTTPMatchRequest.query_params:type_name -> dubbo.networking.v1alpha3.HTTPMatchRequest.QueryParamsEntry
+	5,  // 8: dubbo.networking.v1alpha3.HTTPMatchRequest.host:type_name -> dubbo.networking.v1alpha3.StringMatch
+	5,  // 9: dubbo.networking.v1alpha3.HTTPMatchRequest.HeadersEntry.value:type_name -> dubbo.networking.v1alpha3.StringMatch
+	5,  // 10: dubbo.networking.v1alpha3.HTTPMatchRequest.QueryParamsEntry.value:type_name -> dubbo.networking.v1alpha3.StringMatch
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_networking_v1alpha3_virtual_service_proto_init() }
@@ -337,13 +561,18 @@ func file_networking_v1alpha3_virtual_service_proto_init() {
 	if File_networking_v1alpha3_virtual_service_proto != nil {
 		return
 	}
+	file_networking_v1alpha3_virtual_service_proto_msgTypes[5].OneofWrappers = []any{
+		(*StringMatch_Exact)(nil),
+		(*StringMatch_Prefix)(nil),
+		(*StringMatch_Regex)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_networking_v1alpha3_virtual_service_proto_rawDesc), len(file_networking_v1alpha3_virtual_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

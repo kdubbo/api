@@ -50,6 +50,28 @@ func (this *HTTPRouteDestination) UnmarshalJSON(b []byte) error {
 	return VirtualServiceUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
+// MarshalJSON is a custom marshaler for HTTPMatchRequest
+func (this *HTTPMatchRequest) MarshalJSON() ([]byte, error) {
+	str, err := VirtualServiceMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for HTTPMatchRequest
+func (this *HTTPMatchRequest) UnmarshalJSON(b []byte) error {
+	return VirtualServiceUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for StringMatch
+func (this *StringMatch) MarshalJSON() ([]byte, error) {
+	str, err := VirtualServiceMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for StringMatch
+func (this *StringMatch) UnmarshalJSON(b []byte) error {
+	return VirtualServiceUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
 var (
 	VirtualServiceMarshaler   = &jsonpb.Marshaler{}
 	VirtualServiceUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}

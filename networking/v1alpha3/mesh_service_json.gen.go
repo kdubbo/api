@@ -17,36 +17,14 @@ func (this *MeshService) UnmarshalJSON(b []byte) error {
 	return MeshServiceUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for MeshServiceRules
-func (this *MeshServiceRules) MarshalJSON() ([]byte, error) {
+// MarshalJSON is a custom marshaler for MeshServiceRule
+func (this *MeshServiceRule) MarshalJSON() ([]byte, error) {
 	str, err := MeshServiceMarshaler.MarshalToString(this)
 	return []byte(str), err
 }
 
-// UnmarshalJSON is a custom unmarshaler for MeshServiceRules
-func (this *MeshServiceRules) UnmarshalJSON(b []byte) error {
-	return MeshServiceUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for HTTPMatchRequest
-func (this *HTTPMatchRequest) MarshalJSON() ([]byte, error) {
-	str, err := MeshServiceMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for HTTPMatchRequest
-func (this *HTTPMatchRequest) UnmarshalJSON(b []byte) error {
-	return MeshServiceUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
-// MarshalJSON is a custom marshaler for StringMatch
-func (this *StringMatch) MarshalJSON() ([]byte, error) {
-	str, err := MeshServiceMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for StringMatch
-func (this *StringMatch) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON is a custom unmarshaler for MeshServiceRule
+func (this *MeshServiceRule) UnmarshalJSON(b []byte) error {
 	return MeshServiceUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
