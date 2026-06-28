@@ -101,7 +101,7 @@ func (ClientTLSSettings_TLSmode) EnumDescriptor() ([]byte, []int) {
 	return file_networking_v1alpha3_destination_rule_proto_rawDescGZIP(), []int{3, 0}
 }
 
-// DestinationRule is the internal policy model derived from MeshService.
+// DestinationRule is the internal policy model derived from Gateway API resources.
 type DestinationRule struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Note that the host field applies to both HTTP and TCP services

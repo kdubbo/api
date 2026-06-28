@@ -44,7 +44,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// VirtualService is the internal route model derived from MeshService.
+// VirtualService is the internal route model derived from Gateway API resources.
 type VirtualService struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The hosts field applies to both HTTP and TCP services. Service inside

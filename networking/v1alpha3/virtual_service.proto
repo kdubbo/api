@@ -28,7 +28,7 @@ import "google/protobuf/wrappers.proto";
 
 option go_package = "/api/networking/v1alpha3";
 
-// VirtualService is the internal route model derived from MeshService.
+// VirtualService is the internal route model derived from Gateway API resources.
 message VirtualService {
   // The hosts field applies to both HTTP and TCP services. Service inside
   // the mesh, i.e., those found in the service registry, must always be
