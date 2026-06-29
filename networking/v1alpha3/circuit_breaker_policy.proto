@@ -1,0 +1,101 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// $schema: dubbo.networking.v1alpha3.CircuitBreakerPolicy
+// $title: Circuit Breaker Policy
+// $description: Gateway API policy attachment for backend circuit breaking.
+
+package dubbo.networking.v1alpha3;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "/api/networking/v1alpha3";
+
+// CircuitBreakerPolicy attaches circuit breaking settings to Gateway API
+// backend targets, typically Services referenced by HTTPRoute backendRefs.
+//
+// <!-- crd generation tags
+// +cue-gen:CircuitBreakerPolicy:groupName:networking.dubbo.apache.org
+// +cue-gen:CircuitBreakerPolicy:versions:v1alpha3
+// +cue-gen:CircuitBreakerPolicy:storageVersion
+// +cue-gen:CircuitBreakerPolicy:annotations:helm.sh/resource-policy=keep
+// +cue-gen:CircuitBreakerPolicy:labels:app=dubbo,chart=dubbo,dubbo=networking,heritage=Tiller,release=dubbo
+// +cue-gen:CircuitBreakerPolicy:subresource:status
+// +cue-gen:CircuitBreakerPolicy:scope:Namespaced
+// +cue-gen:CircuitBreakerPolicy:resource:categories=dubbo,networking,shortNames=cbp,plural=circuitbreakerpolicies,singular=circuitbreakerpolicy
+// +cue-gen:CircuitBreakerPolicy:preserveUnknownFields:false
+// +cue-gen:CircuitBreakerPolicy:printerColumn:name=Targets,type=string,JSONPath=.spec.targetRefs[*].name,description="Gateway API targets."
+// +cue-gen:CircuitBreakerPolicy:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp representing the server time when this object was created."
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=networking.dubbo.apache.org/v1alpha3
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+message CircuitBreakerPolicy {
+  // Gateway API policy targets. Only Service targets are applied today.
+  repeated PolicyTargetReference target_refs = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Connection pool limits. These provide the request-volume side of circuit
+  // breaking, matching the knobs used by Envoy and Istio clusters.
+  ConnectionPoolSettings connection_pool = 2;
+
+  // Outlier detection controls passive ejection of failing endpoints.
+  OutlierDetection outlier_detection = 3;
+}
+
+message PolicyTargetReference {
+  // API group of the target. Empty means the core Kubernetes API group.
+  string group = 1;
+  // Kind of the target. Circuit breaking currently supports Service.
+  string kind = 2 [(google.api.field_behavior) = REQUIRED];
+  // Name of the target object.
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+  // Optional section name for future per-port attachment.
+  string section_name = 4;
+}
+
+message ConnectionPoolSettings {
+  // Maximum concurrent upstream connections.
+  int32 max_connections = 1;
+  // Maximum queued requests waiting for an upstream connection.
+  int32 http1_max_pending_requests = 2;
+  // Maximum concurrent requests for HTTP/2 or gRPC upstreams.
+  int32 http2_max_requests = 3;
+  // Maximum requests before a connection is drained.
+  int32 max_requests_per_connection = 4;
+  // Maximum retries allowed to the backend.
+  int32 max_retries = 5;
+}
+
+message OutlierDetection {
+  // Number of consecutive 5xx responses before an endpoint is considered an outlier.
+  google.protobuf.UInt32Value consecutive_5xx_errors = 1;
+  // Time between outlier detection sweeps.
+  google.protobuf.Duration interval = 2;
+  // Minimum ejection time for an unhealthy endpoint.
+  google.protobuf.Duration base_ejection_time = 3;
+  // Maximum percentage of endpoints that can be ejected.
+  int32 max_ejection_percent = 4;
+  // Minimum healthy percentage before outlier detection is disabled.
+  int32 min_health_percent = 5;
+}
