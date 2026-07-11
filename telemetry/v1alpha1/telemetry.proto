@@ -1,0 +1,99 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// $schema: dubbo.telemetry.v1alpha1.Telemetry
+// $title: Telemetry
+// $description: Telemetry configuration for workloads.
+
+package dubbo.telemetry.v1alpha1;
+
+import "google/protobuf/wrappers.proto";
+import "type/v1alpha3/selector.proto";
+
+option go_package = "/api/telemetry/v1alpha1";
+
+// Telemetry defines how telemetry (tracing) is generated for workloads within a mesh.
+//
+// The hierarchy of Telemetry configuration is as follows:
+//
+// 1. Workload-specific configuration (a `Telemetry` resource with a `selector`)
+// 2. Namespace-specific configuration (a `Telemetry` resource in a namespace without a `selector`)
+// 3. Root namespace configuration (a `Telemetry` resource in the mesh root namespace, e.g. `dubbo-system`)
+//
+// Tracing providers referenced by name must be declared in the mesh config
+// `extensionProviders` list.
+//
+// <!-- crd generation tags
+// +cue-gen:Telemetry:groupName:telemetry.dubbo.apache.org
+// +cue-gen:Telemetry:versions:v1alpha1
+// +cue-gen:Telemetry:storageVersion
+// +cue-gen:Telemetry:annotations:helm.sh/resource-policy=keep
+// +cue-gen:Telemetry:labels:app=dubbo,chart=dubbo,dubbo=telemetry,heritage=Tiller,release=dubbo
+// +cue-gen:Telemetry:subresource:status
+// +cue-gen:Telemetry:scope:Namespaced
+// +cue-gen:Telemetry:resource:categories=dubbo,telemetry,plural=telemetries,shortNames=telemetry
+// +cue-gen:Telemetry:preserveUnknownFields:false
+// +cue-gen:Telemetry:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp
+// representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations.
+// Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+// Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata"
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=telemetry.dubbo.apache.org/v1alpha1
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+message Telemetry {
+  // The selector determines the workloads to apply the Telemetry on. The
+  // selector will match with workloads in the same namespace as the policy.
+  // If the policy is in the root namespace, the selector will additionally
+  // match with workloads in all namespaces.
+  //
+  // If not set, the policy will be applied to all workloads in the same
+  // namespace as the policy.
+  dubbo.type.v1alpha3.WorkloadSelector selector = 1;
+
+  // Tracing configures the tracing behavior for all selected workloads.
+  repeated Tracing tracing = 2;
+}
+
+// Tracing configures tracing behavior for selected workloads.
+message Tracing {
+  // TracingProvider references an extension provider declared in the mesh
+  // config `extensionProviders` list by name.
+  message TracingProvider {
+    // REQUIRED. Name of the tracing provider as declared in the mesh config
+    // `extensionProviders` list.
+    string name = 1;
+  }
+
+  // The providers to be used for span reporting. If empty, the mesh-wide
+  // default tracing provider is used.
+  repeated TracingProvider providers = 1;
+
+  // Controls the rate at which traffic will be selected for tracing if no
+  // prior sampling decision has been made. Value must be between 0.00 and
+  // 100.00. Default is 100.00.
+  google.protobuf.DoubleValue random_sampling_percentage = 2;
+
+  // Controls span reporting. If set to true, no spans will be reported for
+  // the selected workloads.
+  google.protobuf.BoolValue disable_span_reporting = 3;
+}

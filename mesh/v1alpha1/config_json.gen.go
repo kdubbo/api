@@ -28,6 +28,39 @@ func (this *MeshConfig_CertificateData) UnmarshalJSON(b []byte) error {
 	return ConfigUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
+// MarshalJSON is a custom marshaler for MeshConfig_ExtensionProvider
+func (this *MeshConfig_ExtensionProvider) MarshalJSON() ([]byte, error) {
+	str, err := ConfigMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for MeshConfig_ExtensionProvider
+func (this *MeshConfig_ExtensionProvider) UnmarshalJSON(b []byte) error {
+	return ConfigUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for MeshConfig_OpenTelemetryTracingProvider
+func (this *MeshConfig_OpenTelemetryTracingProvider) MarshalJSON() ([]byte, error) {
+	str, err := ConfigMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for MeshConfig_OpenTelemetryTracingProvider
+func (this *MeshConfig_OpenTelemetryTracingProvider) UnmarshalJSON(b []byte) error {
+	return ConfigUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for MeshConfig_DefaultProviders
+func (this *MeshConfig_DefaultProviders) MarshalJSON() ([]byte, error) {
+	str, err := ConfigMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for MeshConfig_DefaultProviders
+func (this *MeshConfig_DefaultProviders) UnmarshalJSON(b []byte) error {
+	return ConfigUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
 // MarshalJSON is a custom marshaler for LabelSelector
 func (this *LabelSelector) MarshalJSON() ([]byte, error) {
 	str, err := ConfigMarshaler.MarshalToString(this)

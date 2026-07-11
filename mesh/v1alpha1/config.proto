@@ -60,6 +60,44 @@ message MeshConfig {
   google.protobuf.Duration dns_refresh_rate = 11;
 
   repeated Certificate certificates = 12 [deprecated = true];
+
+  // Flag to control generation of trace spans and request IDs.
+  // When enabled, workloads and managed gateways report spans to the default
+  // tracing extension provider.
+  bool enable_tracing = 13;
+
+  message ExtensionProvider {
+    // REQUIRED. A unique name identifying the extension provider.
+    string name = 1;
+
+    oneof provider {
+      // Configures an OpenTelemetry tracing provider (OTLP over gRPC).
+      OpenTelemetryTracingProvider opentelemetry = 2;
+    }
+  }
+
+  message OpenTelemetryTracingProvider {
+    // REQUIRED. Hostname of the service that implements the OTLP collector,
+    // e.g. "jaeger-collector.dubbo-system.svc.cluster.local".
+    string service = 1;
+
+    // REQUIRED. Port of the OTLP gRPC collector, typically 4317.
+    uint32 port = 2;
+  }
+
+  // Defines a list of extension providers available for use in the mesh.
+  // A provider is activated mesh-wide through enable_tracing together with
+  // default_providers, or used directly by name.
+  repeated ExtensionProvider extension_providers = 14;
+
+  message DefaultProviders {
+    // Names of the default tracing providers. When empty and tracing is
+    // enabled, the first provider that configures tracing is used.
+    repeated string tracing = 1;
+  }
+
+  // Specifies extension providers to use by default.
+  DefaultProviders default_providers = 15;
 }
 
 message LabelSelector {
