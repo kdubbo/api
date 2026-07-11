@@ -26,8 +26,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
-	_ "google.golang.org/protobuf/types/known/structpb"
-	_ "google.golang.org/protobuf/types/known/wrapperspb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -55,19 +53,9 @@ type MeshConfig struct {
 	RootNamespace                  string                        `protobuf:"bytes,10,opt,name=root_namespace,json=rootNamespace,proto3" json:"root_namespace,omitempty"`
 	DnsRefreshRate                 *durationpb.Duration          `protobuf:"bytes,11,opt,name=dns_refresh_rate,json=dnsRefreshRate,proto3" json:"dns_refresh_rate,omitempty"`
 	// Deprecated: Marked as deprecated in config.proto.
-	Certificates []*Certificate `protobuf:"bytes,12,rep,name=certificates,proto3" json:"certificates,omitempty"`
-	// Flag to control generation of trace spans and request IDs.
-	// When enabled, workloads and managed gateways report spans to the default
-	// tracing extension provider.
-	EnableTracing bool `protobuf:"varint,13,opt,name=enable_tracing,json=enableTracing,proto3" json:"enable_tracing,omitempty"`
-	// Defines a list of extension providers available for use in the mesh.
-	// A provider is activated mesh-wide through enable_tracing together with
-	// default_providers, or used directly by name.
-	ExtensionProviders []*MeshConfig_ExtensionProvider `protobuf:"bytes,14,rep,name=extension_providers,json=extensionProviders,proto3" json:"extension_providers,omitempty"`
-	// Specifies extension providers to use by default.
-	DefaultProviders *MeshConfig_DefaultProviders `protobuf:"bytes,15,opt,name=default_providers,json=defaultProviders,proto3" json:"default_providers,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	Certificates  []*Certificate `protobuf:"bytes,12,rep,name=certificates,proto3" json:"certificates,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MeshConfig) Reset() {
@@ -181,27 +169,6 @@ func (x *MeshConfig) GetDnsRefreshRate() *durationpb.Duration {
 func (x *MeshConfig) GetCertificates() []*Certificate {
 	if x != nil {
 		return x.Certificates
-	}
-	return nil
-}
-
-func (x *MeshConfig) GetEnableTracing() bool {
-	if x != nil {
-		return x.EnableTracing
-	}
-	return false
-}
-
-func (x *MeshConfig) GetExtensionProviders() []*MeshConfig_ExtensionProvider {
-	if x != nil {
-		return x.ExtensionProviders
-	}
-	return nil
-}
-
-func (x *MeshConfig) GetDefaultProviders() *MeshConfig_DefaultProviders {
-	if x != nil {
-		return x.DefaultProviders
 	}
 	return nil
 }
@@ -517,188 +484,11 @@ func (*MeshConfig_CertificateData_Pem) isMeshConfig_CertificateData_CertificateD
 
 func (*MeshConfig_CertificateData_SpiffeBundleUrl) isMeshConfig_CertificateData_CertificateData() {}
 
-type MeshConfig_ExtensionProvider struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// REQUIRED. A unique name identifying the extension provider.
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Types that are valid to be assigned to Provider:
-	//
-	//	*MeshConfig_ExtensionProvider_Opentelemetry
-	Provider      isMeshConfig_ExtensionProvider_Provider `protobuf_oneof:"provider"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MeshConfig_ExtensionProvider) Reset() {
-	*x = MeshConfig_ExtensionProvider{}
-	mi := &file_config_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MeshConfig_ExtensionProvider) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MeshConfig_ExtensionProvider) ProtoMessage() {}
-
-func (x *MeshConfig_ExtensionProvider) ProtoReflect() protoreflect.Message {
-	mi := &file_config_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MeshConfig_ExtensionProvider.ProtoReflect.Descriptor instead.
-func (*MeshConfig_ExtensionProvider) Descriptor() ([]byte, []int) {
-	return file_config_proto_rawDescGZIP(), []int{0, 1}
-}
-
-func (x *MeshConfig_ExtensionProvider) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *MeshConfig_ExtensionProvider) GetProvider() isMeshConfig_ExtensionProvider_Provider {
-	if x != nil {
-		return x.Provider
-	}
-	return nil
-}
-
-func (x *MeshConfig_ExtensionProvider) GetOpentelemetry() *MeshConfig_OpenTelemetryTracingProvider {
-	if x != nil {
-		if x, ok := x.Provider.(*MeshConfig_ExtensionProvider_Opentelemetry); ok {
-			return x.Opentelemetry
-		}
-	}
-	return nil
-}
-
-type isMeshConfig_ExtensionProvider_Provider interface {
-	isMeshConfig_ExtensionProvider_Provider()
-}
-
-type MeshConfig_ExtensionProvider_Opentelemetry struct {
-	// Configures an OpenTelemetry tracing provider (OTLP over gRPC).
-	Opentelemetry *MeshConfig_OpenTelemetryTracingProvider `protobuf:"bytes,2,opt,name=opentelemetry,proto3,oneof"`
-}
-
-func (*MeshConfig_ExtensionProvider_Opentelemetry) isMeshConfig_ExtensionProvider_Provider() {}
-
-type MeshConfig_OpenTelemetryTracingProvider struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// REQUIRED. Hostname of the service that implements the OTLP collector,
-	// e.g. "jaeger-collector.dubbo-system.svc.cluster.local".
-	Service string `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
-	// REQUIRED. Port of the OTLP gRPC collector, typically 4317.
-	Port          uint32 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MeshConfig_OpenTelemetryTracingProvider) Reset() {
-	*x = MeshConfig_OpenTelemetryTracingProvider{}
-	mi := &file_config_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MeshConfig_OpenTelemetryTracingProvider) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MeshConfig_OpenTelemetryTracingProvider) ProtoMessage() {}
-
-func (x *MeshConfig_OpenTelemetryTracingProvider) ProtoReflect() protoreflect.Message {
-	mi := &file_config_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MeshConfig_OpenTelemetryTracingProvider.ProtoReflect.Descriptor instead.
-func (*MeshConfig_OpenTelemetryTracingProvider) Descriptor() ([]byte, []int) {
-	return file_config_proto_rawDescGZIP(), []int{0, 2}
-}
-
-func (x *MeshConfig_OpenTelemetryTracingProvider) GetService() string {
-	if x != nil {
-		return x.Service
-	}
-	return ""
-}
-
-func (x *MeshConfig_OpenTelemetryTracingProvider) GetPort() uint32 {
-	if x != nil {
-		return x.Port
-	}
-	return 0
-}
-
-type MeshConfig_DefaultProviders struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Names of the default tracing providers. When empty and tracing is
-	// enabled, the first provider that configures tracing is used.
-	Tracing       []string `protobuf:"bytes,1,rep,name=tracing,proto3" json:"tracing,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MeshConfig_DefaultProviders) Reset() {
-	*x = MeshConfig_DefaultProviders{}
-	mi := &file_config_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MeshConfig_DefaultProviders) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MeshConfig_DefaultProviders) ProtoMessage() {}
-
-func (x *MeshConfig_DefaultProviders) ProtoReflect() protoreflect.Message {
-	mi := &file_config_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MeshConfig_DefaultProviders.ProtoReflect.Descriptor instead.
-func (*MeshConfig_DefaultProviders) Descriptor() ([]byte, []int) {
-	return file_config_proto_rawDescGZIP(), []int{0, 3}
-}
-
-func (x *MeshConfig_DefaultProviders) GetTracing() []string {
-	if x != nil {
-		return x.Tracing
-	}
-	return nil
-}
-
 var File_config_proto protoreflect.FileDescriptor
 
 const file_config_proto_rawDesc = "" +
 	"\n" +
-	"\fconfig.proto\x12\x13dubbo.mesh.v1alpha1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\vproxy.proto\"\xcd\v\n" +
+	"\fconfig.proto\x12\x13dubbo.mesh.v1alpha1\x1a\x1egoogle/protobuf/duration.proto\x1a\vproxy.proto\"\xd1\a\n" +
 	"\n" +
 	"MeshConfig\x12B\n" +
 	"\x0fconnect_timeout\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x0econnectTimeout\x12G\n" +
@@ -713,26 +503,13 @@ const file_config_proto_rawDesc = "" +
 	"\x0eroot_namespace\x18\n" +
 	" \x01(\tR\rrootNamespace\x12C\n" +
 	"\x10dns_refresh_rate\x18\v \x01(\v2\x19.google.protobuf.DurationR\x0ednsRefreshRate\x12H\n" +
-	"\fcertificates\x18\f \x03(\v2 .dubbo.mesh.v1alpha1.CertificateB\x02\x18\x01R\fcertificates\x12%\n" +
-	"\x0eenable_tracing\x18\r \x01(\bR\renableTracing\x12b\n" +
-	"\x13extension_providers\x18\x0e \x03(\v21.dubbo.mesh.v1alpha1.MeshConfig.ExtensionProviderR\x12extensionProviders\x12]\n" +
-	"\x11default_providers\x18\x0f \x01(\v20.dubbo.mesh.v1alpha1.MeshConfig.DefaultProvidersR\x10defaultProviders\x1a\xaf\x01\n" +
+	"\fcertificates\x18\f \x03(\v2 .dubbo.mesh.v1alpha1.CertificateB\x02\x18\x01R\fcertificates\x1a\xaf\x01\n" +
 	"\x0fCertificateData\x12\x12\n" +
 	"\x03pem\x18\x01 \x01(\tH\x00R\x03pem\x12,\n" +
 	"\x11spiffe_bundle_url\x18\x02 \x01(\tH\x00R\x0fspiffeBundleUrl\x12!\n" +
 	"\fcert_signers\x18\x03 \x03(\tR\vcertSigners\x12#\n" +
 	"\rtrust_domains\x18\x04 \x03(\tR\ftrustDomainsB\x12\n" +
-	"\x10certificate_data\x1a\x99\x01\n" +
-	"\x11ExtensionProvider\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12d\n" +
-	"\ropentelemetry\x18\x02 \x01(\v2<.dubbo.mesh.v1alpha1.MeshConfig.OpenTelemetryTracingProviderH\x00R\ropentelemetryB\n" +
-	"\n" +
-	"\bprovider\x1aL\n" +
-	"\x1cOpenTelemetryTracingProvider\x12\x18\n" +
-	"\aservice\x18\x01 \x01(\tR\aservice\x12\x12\n" +
-	"\x04port\x18\x02 \x01(\rR\x04port\x1a,\n" +
-	"\x10DefaultProviders\x12\x18\n" +
-	"\atracing\x18\x01 \x03(\tR\atracing\"\x81\x02\n" +
+	"\x10certificate_dataJ\x04\b\r\x10\x10\"\x81\x02\n" +
 	"\rLabelSelector\x12U\n" +
 	"\vmatchLabels\x18\x01 \x03(\v23.dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntryR\vmatchLabels\x12Y\n" +
 	"\x10matchExpressions\x18\x02 \x03(\v2-.dubbo.mesh.v1alpha1.LabelSelectorRequirementR\x10matchExpressions\x1a>\n" +
@@ -762,38 +539,32 @@ func file_config_proto_rawDescGZIP() []byte {
 	return file_config_proto_rawDescData
 }
 
-var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_config_proto_goTypes = []any{
-	(*MeshConfig)(nil),                              // 0: dubbo.mesh.v1alpha1.MeshConfig
-	(*LabelSelector)(nil),                           // 1: dubbo.mesh.v1alpha1.LabelSelector
-	(*LabelSelectorRequirement)(nil),                // 2: dubbo.mesh.v1alpha1.LabelSelectorRequirement
-	(*ConfigSource)(nil),                            // 3: dubbo.mesh.v1alpha1.ConfigSource
-	(*Certificate)(nil),                             // 4: dubbo.mesh.v1alpha1.Certificate
-	(*MeshConfig_CertificateData)(nil),              // 5: dubbo.mesh.v1alpha1.MeshConfig.CertificateData
-	(*MeshConfig_ExtensionProvider)(nil),            // 6: dubbo.mesh.v1alpha1.MeshConfig.ExtensionProvider
-	(*MeshConfig_OpenTelemetryTracingProvider)(nil), // 7: dubbo.mesh.v1alpha1.MeshConfig.OpenTelemetryTracingProvider
-	(*MeshConfig_DefaultProviders)(nil),             // 8: dubbo.mesh.v1alpha1.MeshConfig.DefaultProviders
-	nil,                                             // 9: dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
-	(*durationpb.Duration)(nil),                     // 10: google.protobuf.Duration
-	(*ProxyConfig)(nil),                             // 11: dubbo.mesh.v1alpha1.ProxyConfig
+	(*MeshConfig)(nil),                 // 0: dubbo.mesh.v1alpha1.MeshConfig
+	(*LabelSelector)(nil),              // 1: dubbo.mesh.v1alpha1.LabelSelector
+	(*LabelSelectorRequirement)(nil),   // 2: dubbo.mesh.v1alpha1.LabelSelectorRequirement
+	(*ConfigSource)(nil),               // 3: dubbo.mesh.v1alpha1.ConfigSource
+	(*Certificate)(nil),                // 4: dubbo.mesh.v1alpha1.Certificate
+	(*MeshConfig_CertificateData)(nil), // 5: dubbo.mesh.v1alpha1.MeshConfig.CertificateData
+	nil,                                // 6: dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
+	(*durationpb.Duration)(nil),        // 7: google.protobuf.Duration
+	(*ProxyConfig)(nil),                // 8: dubbo.mesh.v1alpha1.ProxyConfig
 }
 var file_config_proto_depIdxs = []int32{
-	10, // 0: dubbo.mesh.v1alpha1.MeshConfig.connect_timeout:type_name -> google.protobuf.Duration
-	11, // 1: dubbo.mesh.v1alpha1.MeshConfig.default_config:type_name -> dubbo.mesh.v1alpha1.ProxyConfig
-	3,  // 2: dubbo.mesh.v1alpha1.MeshConfig.config_sources:type_name -> dubbo.mesh.v1alpha1.ConfigSource
-	5,  // 3: dubbo.mesh.v1alpha1.MeshConfig.ca_certificates:type_name -> dubbo.mesh.v1alpha1.MeshConfig.CertificateData
-	10, // 4: dubbo.mesh.v1alpha1.MeshConfig.dns_refresh_rate:type_name -> google.protobuf.Duration
-	4,  // 5: dubbo.mesh.v1alpha1.MeshConfig.certificates:type_name -> dubbo.mesh.v1alpha1.Certificate
-	6,  // 6: dubbo.mesh.v1alpha1.MeshConfig.extension_providers:type_name -> dubbo.mesh.v1alpha1.MeshConfig.ExtensionProvider
-	8,  // 7: dubbo.mesh.v1alpha1.MeshConfig.default_providers:type_name -> dubbo.mesh.v1alpha1.MeshConfig.DefaultProviders
-	9,  // 8: dubbo.mesh.v1alpha1.LabelSelector.matchLabels:type_name -> dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
-	2,  // 9: dubbo.mesh.v1alpha1.LabelSelector.matchExpressions:type_name -> dubbo.mesh.v1alpha1.LabelSelectorRequirement
-	7,  // 10: dubbo.mesh.v1alpha1.MeshConfig.ExtensionProvider.opentelemetry:type_name -> dubbo.mesh.v1alpha1.MeshConfig.OpenTelemetryTracingProvider
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	7, // 0: dubbo.mesh.v1alpha1.MeshConfig.connect_timeout:type_name -> google.protobuf.Duration
+	8, // 1: dubbo.mesh.v1alpha1.MeshConfig.default_config:type_name -> dubbo.mesh.v1alpha1.ProxyConfig
+	3, // 2: dubbo.mesh.v1alpha1.MeshConfig.config_sources:type_name -> dubbo.mesh.v1alpha1.ConfigSource
+	5, // 3: dubbo.mesh.v1alpha1.MeshConfig.ca_certificates:type_name -> dubbo.mesh.v1alpha1.MeshConfig.CertificateData
+	7, // 4: dubbo.mesh.v1alpha1.MeshConfig.dns_refresh_rate:type_name -> google.protobuf.Duration
+	4, // 5: dubbo.mesh.v1alpha1.MeshConfig.certificates:type_name -> dubbo.mesh.v1alpha1.Certificate
+	6, // 6: dubbo.mesh.v1alpha1.LabelSelector.matchLabels:type_name -> dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
+	2, // 7: dubbo.mesh.v1alpha1.LabelSelector.matchExpressions:type_name -> dubbo.mesh.v1alpha1.LabelSelectorRequirement
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_config_proto_init() }
@@ -806,16 +577,13 @@ func file_config_proto_init() {
 		(*MeshConfig_CertificateData_Pem)(nil),
 		(*MeshConfig_CertificateData_SpiffeBundleUrl)(nil),
 	}
-	file_config_proto_msgTypes[6].OneofWrappers = []any{
-		(*MeshConfig_ExtensionProvider_Opentelemetry)(nil),
-	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_config_proto_rawDesc), len(file_config_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -39,6 +39,17 @@ func (this *Tracing_TracingProvider) UnmarshalJSON(b []byte) error {
 	return TelemetryUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
+// MarshalJSON is a custom marshaler for Tracing_Tag
+func (this *Tracing_Tag) MarshalJSON() ([]byte, error) {
+	str, err := TelemetryMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for Tracing_Tag
+func (this *Tracing_Tag) UnmarshalJSON(b []byte) error {
+	return TelemetryUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
 var (
 	TelemetryMarshaler   = &jsonpb.Marshaler{}
 	TelemetryUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}

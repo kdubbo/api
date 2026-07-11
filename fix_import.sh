@@ -2,7 +2,7 @@
 
 set -e
 
-TARGET_PATH='github.com/apache/dubbo-kubernetes/api/type/v1alpha3'
+TARGET_PATH='github.com/kdubbo/api/type/v1alpha3'
 
 find . -name "*.go" -type f | while read -r file; do
   sed -i.bak \

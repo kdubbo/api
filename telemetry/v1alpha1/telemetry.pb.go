@@ -45,14 +45,15 @@ const (
 
 // Telemetry defines how telemetry (tracing) is generated for workloads within a mesh.
 //
-// The hierarchy of Telemetry configuration is as follows:
+// Telemetry is resolved from least to most specific. Fields explicitly set at
+// a lower level replace the corresponding field from the parent level:
 //
-// 1. Workload-specific configuration (a `Telemetry` resource with a `selector`)
-// 2. Namespace-specific configuration (a `Telemetry` resource in a namespace without a `selector`)
-// 3. Root namespace configuration (a `Telemetry` resource in the mesh root namespace, e.g. `dubbo-system`)
-//
-// Tracing providers referenced by name must be declared in the mesh config
-// `extensionProviders` list.
+//  1. Mesh-level configuration (one `Telemetry` resource without a `selector`
+//     in `dubbo-system`)
+//  2. Namespace-level configuration (one `Telemetry` resource without a
+//     `selector` in the workload namespace)
+//  3. Workload-level configuration (a `Telemetry` resource with a matching
+//     `selector` in the workload namespace)
 //
 // <!-- crd generation tags
 // +cue-gen:Telemetry:groupName:telemetry.dubbo.apache.org
@@ -62,7 +63,7 @@ const (
 // +cue-gen:Telemetry:labels:app=dubbo,chart=dubbo,dubbo=telemetry,heritage=Tiller,release=dubbo
 // +cue-gen:Telemetry:subresource:status
 // +cue-gen:Telemetry:scope:Namespaced
-// +cue-gen:Telemetry:resource:categories=dubbo,telemetry,shortNames=telemetry
+// +cue-gen:Telemetry:resource:categories=dubbo,telemetry,plural=telemetries,shortNames=telemetry
 // +cue-gen:Telemetry:preserveUnknownFields:false
 // +cue-gen:Telemetry:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp
 // representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations.
@@ -80,8 +81,8 @@ type Telemetry struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The selector determines the workloads to apply the Telemetry on. The
 	// selector will match with workloads in the same namespace as the policy.
-	// If the policy is in the root namespace, the selector will additionally
-	// match with workloads in all namespaces.
+	// Selectors are rejected on Telemetry resources in `dubbo-system` because
+	// that namespace is reserved for the single mesh-level resource.
 	//
 	// If not set, the policy will be applied to all workloads in the same
 	// namespace as the policy.
@@ -139,8 +140,8 @@ func (x *Telemetry) GetTracing() []*Tracing {
 // Tracing configures tracing behavior for selected workloads.
 type Tracing struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The providers to be used for span reporting. If empty, the mesh-wide
-	// default tracing provider is used.
+	// Providers used for span reporting. A non-empty value replaces providers
+	// inherited from the parent Telemetry level.
 	Providers []*Tracing_TracingProvider `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"`
 	// Controls the rate at which traffic will be selected for tracing if no
 	// prior sampling decision has been made. Value must be between 0.00 and
@@ -149,8 +150,11 @@ type Tracing struct {
 	// Controls span reporting. If set to true, no spans will be reported for
 	// the selected workloads.
 	DisableSpanReporting *wrapperspb.BoolValue `protobuf:"bytes,3,opt,name=disable_span_reporting,json=disableSpanReporting,proto3" json:"disable_span_reporting,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Static span tags. A non-empty value replaces tags inherited from the
+	// parent Telemetry level.
+	Tags          []*Tracing_Tag `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Tracing) Reset() {
@@ -204,12 +208,18 @@ func (x *Tracing) GetDisableSpanReporting() *wrapperspb.BoolValue {
 	return nil
 }
 
-// TracingProvider references an extension provider declared in the mesh
-// config `extensionProviders` list by name.
+func (x *Tracing) GetTags() []*Tracing_Tag {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+// TracingProvider selects a tracing provider by name. `localtrace` selects
+// the tracing service installed by the Dubbo observability profile.
 type Tracing_TracingProvider struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// REQUIRED. Name of the tracing provider as declared in the mesh config
-	// `extensionProviders` list.
+	// REQUIRED. Name of the tracing provider.
 	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -252,6 +262,61 @@ func (x *Tracing_TracingProvider) GetName() string {
 	return ""
 }
 
+// Tag adds a static key/value attribute to every reported span.
+type Tracing_Tag struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// REQUIRED. Span attribute name.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Span attribute value.
+	Value         string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Tracing_Tag) Reset() {
+	*x = Tracing_Tag{}
+	mi := &file_telemetry_v1alpha1_telemetry_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Tracing_Tag) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Tracing_Tag) ProtoMessage() {}
+
+func (x *Tracing_Tag) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_v1alpha1_telemetry_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Tracing_Tag.ProtoReflect.Descriptor instead.
+func (*Tracing_Tag) Descriptor() ([]byte, []int) {
+	return file_telemetry_v1alpha1_telemetry_proto_rawDescGZIP(), []int{1, 1}
+}
+
+func (x *Tracing_Tag) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Tracing_Tag) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 var File_telemetry_v1alpha1_telemetry_proto protoreflect.FileDescriptor
 
 const file_telemetry_v1alpha1_telemetry_proto_rawDesc = "" +
@@ -259,13 +324,17 @@ const file_telemetry_v1alpha1_telemetry_proto_rawDesc = "" +
 	"\"telemetry/v1alpha1/telemetry.proto\x12\x18dubbo.telemetry.v1alpha1\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1ctype/v1alpha3/selector.proto\"\x8b\x01\n" +
 	"\tTelemetry\x12A\n" +
 	"\bselector\x18\x01 \x01(\v2%.dubbo.type.v1alpha3.WorkloadSelectorR\bselector\x12;\n" +
-	"\atracing\x18\x02 \x03(\v2!.dubbo.telemetry.v1alpha1.TracingR\atracing\"\xaf\x02\n" +
+	"\atracing\x18\x02 \x03(\v2!.dubbo.telemetry.v1alpha1.TracingR\atracing\"\x9b\x03\n" +
 	"\aTracing\x12O\n" +
 	"\tproviders\x18\x01 \x03(\v21.dubbo.telemetry.v1alpha1.Tracing.TracingProviderR\tproviders\x12Z\n" +
 	"\x1arandom_sampling_percentage\x18\x02 \x01(\v2\x1c.google.protobuf.DoubleValueR\x18randomSamplingPercentage\x12P\n" +
-	"\x16disable_span_reporting\x18\x03 \x01(\v2\x1a.google.protobuf.BoolValueR\x14disableSpanReporting\x1a%\n" +
+	"\x16disable_span_reporting\x18\x03 \x01(\v2\x1a.google.protobuf.BoolValueR\x14disableSpanReporting\x129\n" +
+	"\x04tags\x18\x04 \x03(\v2%.dubbo.telemetry.v1alpha1.Tracing.TagR\x04tags\x1a%\n" +
 	"\x0fTracingProvider\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04nameB\x19Z\x17/api/telemetry/v1alpha1b\x06proto3"
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a/\n" +
+	"\x03Tag\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05valueB\x19Z\x17/api/telemetry/v1alpha1b\x06proto3"
 
 var (
 	file_telemetry_v1alpha1_telemetry_proto_rawDescOnce sync.Once
@@ -279,26 +348,28 @@ func file_telemetry_v1alpha1_telemetry_proto_rawDescGZIP() []byte {
 	return file_telemetry_v1alpha1_telemetry_proto_rawDescData
 }
 
-var file_telemetry_v1alpha1_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_telemetry_v1alpha1_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_telemetry_v1alpha1_telemetry_proto_goTypes = []any{
 	(*Telemetry)(nil),                 // 0: dubbo.telemetry.v1alpha1.Telemetry
 	(*Tracing)(nil),                   // 1: dubbo.telemetry.v1alpha1.Tracing
 	(*Tracing_TracingProvider)(nil),   // 2: dubbo.telemetry.v1alpha1.Tracing.TracingProvider
-	(*v1alpha3.WorkloadSelector)(nil), // 3: dubbo.type.v1alpha3.WorkloadSelector
-	(*wrapperspb.DoubleValue)(nil),    // 4: google.protobuf.DoubleValue
-	(*wrapperspb.BoolValue)(nil),      // 5: google.protobuf.BoolValue
+	(*Tracing_Tag)(nil),               // 3: dubbo.telemetry.v1alpha1.Tracing.Tag
+	(*v1alpha3.WorkloadSelector)(nil), // 4: dubbo.type.v1alpha3.WorkloadSelector
+	(*wrapperspb.DoubleValue)(nil),    // 5: google.protobuf.DoubleValue
+	(*wrapperspb.BoolValue)(nil),      // 6: google.protobuf.BoolValue
 }
 var file_telemetry_v1alpha1_telemetry_proto_depIdxs = []int32{
-	3, // 0: dubbo.telemetry.v1alpha1.Telemetry.selector:type_name -> dubbo.type.v1alpha3.WorkloadSelector
+	4, // 0: dubbo.telemetry.v1alpha1.Telemetry.selector:type_name -> dubbo.type.v1alpha3.WorkloadSelector
 	1, // 1: dubbo.telemetry.v1alpha1.Telemetry.tracing:type_name -> dubbo.telemetry.v1alpha1.Tracing
 	2, // 2: dubbo.telemetry.v1alpha1.Tracing.providers:type_name -> dubbo.telemetry.v1alpha1.Tracing.TracingProvider
-	4, // 3: dubbo.telemetry.v1alpha1.Tracing.random_sampling_percentage:type_name -> google.protobuf.DoubleValue
-	5, // 4: dubbo.telemetry.v1alpha1.Tracing.disable_span_reporting:type_name -> google.protobuf.BoolValue
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	5, // 3: dubbo.telemetry.v1alpha1.Tracing.random_sampling_percentage:type_name -> google.protobuf.DoubleValue
+	6, // 4: dubbo.telemetry.v1alpha1.Tracing.disable_span_reporting:type_name -> google.protobuf.BoolValue
+	3, // 5: dubbo.telemetry.v1alpha1.Tracing.tags:type_name -> dubbo.telemetry.v1alpha1.Tracing.Tag
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_telemetry_v1alpha1_telemetry_proto_init() }
@@ -312,7 +383,7 @@ func file_telemetry_v1alpha1_telemetry_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_telemetry_v1alpha1_telemetry_proto_rawDesc), len(file_telemetry_v1alpha1_telemetry_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

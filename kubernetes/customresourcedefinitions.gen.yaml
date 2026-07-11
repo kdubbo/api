@@ -628,7 +628,7 @@ spec:
                       nullable: true
                       type: boolean
                     providers:
-                      description: The providers to be used for span reporting.
+                      description: Providers used for span reporting.
                       items:
                         properties:
                           name:
@@ -642,6 +642,18 @@ spec:
                       format: double
                       nullable: true
                       type: number
+                    tags:
+                      description: Static span tags.
+                      items:
+                        properties:
+                          name:
+                            description: REQUIRED.
+                            type: string
+                          value:
+                            description: Span attribute value.
+                            type: string
+                        type: object
+                      type: array
                   type: object
                 type: array
             type: object

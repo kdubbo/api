@@ -29,14 +29,15 @@ option go_package = "/api/telemetry/v1alpha1";
 
 // Telemetry defines how telemetry (tracing) is generated for workloads within a mesh.
 //
-// The hierarchy of Telemetry configuration is as follows:
+// Telemetry is resolved from least to most specific. Fields explicitly set at
+// a lower level replace the corresponding field from the parent level:
 //
-// 1. Workload-specific configuration (a `Telemetry` resource with a `selector`)
-// 2. Namespace-specific configuration (a `Telemetry` resource in a namespace without a `selector`)
-// 3. Root namespace configuration (a `Telemetry` resource in the mesh root namespace, e.g. `dubbo-system`)
-//
-// Tracing providers referenced by name must be declared in the mesh config
-// `extensionProviders` list.
+// 1. Mesh-level configuration (one `Telemetry` resource without a `selector`
+//    in `dubbo-system`)
+// 2. Namespace-level configuration (one `Telemetry` resource without a
+//    `selector` in the workload namespace)
+// 3. Workload-level configuration (a `Telemetry` resource with a matching
+//    `selector` in the workload namespace)
 //
 // <!-- crd generation tags
 // +cue-gen:Telemetry:groupName:telemetry.dubbo.apache.org
@@ -63,8 +64,8 @@ option go_package = "/api/telemetry/v1alpha1";
 message Telemetry {
   // The selector determines the workloads to apply the Telemetry on. The
   // selector will match with workloads in the same namespace as the policy.
-  // If the policy is in the root namespace, the selector will additionally
-  // match with workloads in all namespaces.
+  // Selectors are rejected on Telemetry resources in `dubbo-system` because
+  // that namespace is reserved for the single mesh-level resource.
   //
   // If not set, the policy will be applied to all workloads in the same
   // namespace as the policy.
@@ -76,16 +77,24 @@ message Telemetry {
 
 // Tracing configures tracing behavior for selected workloads.
 message Tracing {
-  // TracingProvider references an extension provider declared in the mesh
-  // config `extensionProviders` list by name.
+  // TracingProvider selects a tracing provider by name. `localtrace` selects
+  // the tracing service installed by the Dubbo observability profile.
   message TracingProvider {
-    // REQUIRED. Name of the tracing provider as declared in the mesh config
-    // `extensionProviders` list.
+    // REQUIRED. Name of the tracing provider.
     string name = 1;
   }
 
-  // The providers to be used for span reporting. If empty, the mesh-wide
-  // default tracing provider is used.
+  // Tag adds a static key/value attribute to every reported span.
+  message Tag {
+    // REQUIRED. Span attribute name.
+    string name = 1;
+
+    // Span attribute value.
+    string value = 2;
+  }
+
+  // Providers used for span reporting. A non-empty value replaces providers
+  // inherited from the parent Telemetry level.
   repeated TracingProvider providers = 1;
 
   // Controls the rate at which traffic will be selected for tracing if no
@@ -96,4 +105,8 @@ message Tracing {
   // Controls span reporting. If set to true, no spans will be reported for
   // the selected workloads.
   google.protobuf.BoolValue disable_span_reporting = 3;
+
+  // Static span tags. A non-empty value replaces tags inherited from the
+  // parent Telemetry level.
+  repeated Tag tags = 4;
 }
