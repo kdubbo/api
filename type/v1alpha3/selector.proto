@@ -20,7 +20,7 @@ package dubbo.type.v1alpha3;
 
 import "google/api/field_behavior.proto";
 
-option go_package = "/api/type/v1alpha3";
+option go_package = "github.com/kdubbo/api/type/v1alpha3";
 
 message WorkloadSelector {
   // +kubebuilder:validation:XValidation:message="wildcard not allowed in label key match",rule="self.all(key, !key.contains('*'))"

@@ -1,0 +1,116 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// $schema: dubbo.networking.v1alpha3.ServiceEntry
+// $title: Service Entry
+// $description: Declarative entries for the internal service registry.
+
+package dubbo.networking.v1alpha3;
+
+import "google/api/field_behavior.proto";
+import "networking/v1alpha3/workload_entry.proto";
+import "type/v1alpha3/selector.proto";
+
+option go_package = "github.com/kdubbo/api/networking/v1alpha3";
+
+// ServiceEntry adds services that are not discovered from Kubernetes.
+//
+// <!-- crd generation tags
+// +cue-gen:ServiceEntry:groupName:networking.dubbo.apache.org
+// +cue-gen:ServiceEntry:versions:v1alpha3
+// +cue-gen:ServiceEntry:storageVersion
+// +cue-gen:ServiceEntry:annotations:helm.sh/resource-policy=keep
+// +cue-gen:ServiceEntry:labels:app=dubbo,chart=dubbo,dubbo=networking,heritage=Tiller,release=dubbo
+// +cue-gen:ServiceEntry:subresource:status
+// +cue-gen:ServiceEntry:scope:Namespaced
+// +cue-gen:ServiceEntry:resource:categories=dubbo,networking,shortNames=se,plural=serviceentries,singular=serviceentry
+// +cue-gen:ServiceEntry:preserveUnknownFields:false
+// +cue-gen:ServiceEntry:printerColumn:name=Hosts,type=string,JSONPath=.spec.hosts,description="Service hosts."
+// +cue-gen:ServiceEntry:printerColumn:name=Location,type=string,JSONPath=.spec.location,description="Service location."
+// +cue-gen:ServiceEntry:printerColumn:name=Resolution,type=string,JSONPath=.spec.resolution,description="Service resolution."
+// +cue-gen:ServiceEntry:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp representing the server time when this object was created."
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=networking.dubbo.apache.org/v1alpha3
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+// +kubebuilder:validation:XValidation:message="only one of workloadSelector or endpoints can be set",rule="!(has(self.workloadSelector) && has(self.endpoints))"
+message ServiceEntry {
+  // DNS hosts associated with the service.
+  // +kubebuilder:validation:MinItems=1
+  // +kubebuilder:validation:MaxItems=256
+  repeated string hosts = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Virtual IP addresses associated with the service.
+  // +kubebuilder:validation:MaxItems=256
+  repeated string addresses = 2;
+
+  // Ports exposed by the service.
+  // +listType=map
+  // +listMapKey=name
+  // +kubebuilder:validation:MaxItems=256
+  repeated ServicePort ports = 3;
+
+  enum Location {
+    MESH_EXTERNAL = 0;
+    MESH_INTERNAL = 1;
+  }
+
+  Location location = 4;
+
+  enum Resolution {
+    NONE = 0;
+    STATIC = 1;
+    DNS = 2;
+    DNS_ROUND_ROBIN = 3;
+  }
+
+  Resolution resolution = 5;
+
+  // Inline endpoints associated with the service.
+  // +kubebuilder:validation:MaxItems=4096
+  repeated WorkloadEntry endpoints = 6;
+
+  // Namespaces to which the service is exported. "." means local and "*" means all.
+  repeated string export_to = 7;
+
+  // Subject alternative names accepted for the service.
+  repeated string subject_alt_names = 8;
+
+  // Selects WorkloadEntry resources in the same namespace.
+  dubbo.type.v1alpha3.WorkloadSelector workload_selector = 9;
+}
+
+message ServicePort {
+  // +kubebuilder:validation:XValidation:message="port must be between 1-65535",rule="0 < self && self <= 65535"
+  uint32 number = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Protocol exposed by the port, for example GRPC, HTTP2, TCP, or TLS.
+  // +kubebuilder:validation:MaxLength=256
+  string protocol = 2;
+
+  // Stable name used by WorkloadEntry.ports.
+  // +kubebuilder:validation:MaxLength=256
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Default endpoint port. Zero means use number.
+  uint32 target_port = 4;
+}

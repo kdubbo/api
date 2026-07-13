@@ -1,0 +1,79 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// $schema: dubbo.networking.v1alpha3.WorkloadEntry
+// $title: Workload Entry
+// $description: Configuration describing a non-Kubernetes workload.
+
+package dubbo.networking.v1alpha3;
+
+option go_package = "github.com/kdubbo/api/networking/v1alpha3";
+
+// WorkloadEntry describes a VM, bare-metal process, or other workload that
+// participates in services declared by ServiceEntry.
+//
+// <!-- crd generation tags
+// +cue-gen:WorkloadEntry:groupName:networking.dubbo.apache.org
+// +cue-gen:WorkloadEntry:versions:v1alpha3
+// +cue-gen:WorkloadEntry:storageVersion
+// +cue-gen:WorkloadEntry:annotations:helm.sh/resource-policy=keep
+// +cue-gen:WorkloadEntry:labels:app=dubbo,chart=dubbo,dubbo=networking,heritage=Tiller,release=dubbo
+// +cue-gen:WorkloadEntry:subresource:status
+// +cue-gen:WorkloadEntry:scope:Namespaced
+// +cue-gen:WorkloadEntry:resource:categories=dubbo,networking,shortNames=we,plural=workloadentries,singular=workloadentry
+// +cue-gen:WorkloadEntry:preserveUnknownFields:false
+// +cue-gen:WorkloadEntry:printerColumn:name=Address,type=string,JSONPath=.spec.address,description="Workload address."
+// +cue-gen:WorkloadEntry:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp representing the server time when this object was created."
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=networking.dubbo.apache.org/v1alpha3
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+message WorkloadEntry {
+  // IP address or fully-qualified DNS name of the workload.
+  // +kubebuilder:validation:MinLength=1
+  // +kubebuilder:validation:MaxLength=256
+  string address = 1;
+
+  // Per-service-port endpoint ports. Keys reference ServicePort.name.
+  // +protoc-gen-crd:map-value-validation:XValidation:message="port must be between 1-65535",rule="0 < self && self <= 65535"
+  // +kubebuilder:validation:MaxProperties=128
+  map<string, uint32> ports = 2;
+
+  // Labels used by ServiceEntry.workloadSelector.
+  // +kubebuilder:validation:MaxProperties=256
+  map<string, string> labels = 3;
+
+  // Network containing the workload.
+  // +kubebuilder:validation:MaxLength=2048
+  string network = 4;
+
+  // Locality in region/zone/subzone form.
+  // +kubebuilder:validation:MaxLength=2048
+  string locality = 5;
+
+  // Relative load-balancing weight.
+  uint32 weight = 6;
+
+  // Service account used to derive workload identity.
+  // +kubebuilder:validation:MaxLength=253
+  string service_account = 7;
+}
