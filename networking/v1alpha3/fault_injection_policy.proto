@@ -1,0 +1,87 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// $schema: dubbo.networking.v1alpha3.FaultInjectionPolicy
+// $title: Fault Injection Policy
+// $description: Gateway API policy attachment for controlled service faults.
+
+package dubbo.networking.v1alpha3;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/wrappers.proto";
+import "networking/v1alpha3/circuit_breaker_policy.proto";
+
+option go_package = "/api/networking/v1alpha3";
+
+// FaultInjectionPolicy injects controlled faults for calls to target Services.
+//
+// <!-- crd generation tags
+// +cue-gen:FaultInjectionPolicy:groupName:networking.dubbo.apache.org
+// +cue-gen:FaultInjectionPolicy:versions:v1alpha3
+// +cue-gen:FaultInjectionPolicy:storageVersion
+// +cue-gen:FaultInjectionPolicy:annotations:helm.sh/resource-policy=keep
+// +cue-gen:FaultInjectionPolicy:labels:app=dubbo,chart=dubbo,dubbo=networking,heritage=Tiller,release=dubbo
+// +cue-gen:FaultInjectionPolicy:subresource:status
+// +cue-gen:FaultInjectionPolicy:scope:Namespaced
+// +cue-gen:FaultInjectionPolicy:resource:categories=dubbo,networking,shortNames=fip,plural=faultinjectionpolicies,singular=faultinjectionpolicy
+// +cue-gen:FaultInjectionPolicy:preserveUnknownFields:false
+// +cue-gen:FaultInjectionPolicy:printerColumn:name=Targets,type=string,JSONPath=.spec.targetRefs[*].name,description="Gateway API targets."
+// +cue-gen:FaultInjectionPolicy:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp representing the server time when this object was created."
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=networking.dubbo.apache.org/v1alpha3
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+// +kubebuilder:validation:XValidation:message="at least one of delay or abort must be set",rule="has(self.delay) || has(self.abort)"
+message FaultInjectionPolicy {
+  // Gateway API policy targets. Only Service targets are applied.
+  repeated PolicyTargetReference target_refs = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Delay pauses a matching request or connection before forwarding.
+  FaultDelay delay = 2;
+
+  // Abort terminates a matching request before it reaches the application.
+  FaultAbort abort = 3;
+}
+
+message FaultDelay {
+  // Fixed delay applied when this fault is selected.
+  google.protobuf.Duration fixed_delay = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Percentage of requests or connections affected, from 0 through 100.
+  // Omitted means 100 percent; zero disables this fault.
+  // +kubebuilder:validation:Maximum=100
+  google.protobuf.UInt32Value percentage = 2;
+}
+
+message FaultAbort {
+  // HTTP status returned by an L7 data plane. L4 data planes close the
+  // connection because they cannot synthesize a protocol response.
+  // +kubebuilder:validation:Minimum=400
+  // +kubebuilder:validation:Maximum=599
+  uint32 http_status = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Percentage of requests or connections affected, from 0 through 100.
+  // Omitted means 100 percent; zero disables this fault.
+  // +kubebuilder:validation:Maximum=100
+  google.protobuf.UInt32Value percentage = 2;
+}
