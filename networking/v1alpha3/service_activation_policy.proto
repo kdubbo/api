@@ -1,0 +1,154 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// $schema: dubbo.networking.v1alpha3.ServiceActivationPolicy
+// $title: Service Activation Policy
+// $description: On-demand activation for a Service that is scaled to zero.
+
+package dubbo.networking.v1alpha3;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/duration.proto";
+import "networking/v1alpha3/circuit_breaker_policy.proto";
+
+option go_package = "/api/networking/v1alpha3";
+
+// ServiceActivationPolicy declares that requests for a Service may be held
+// while it scales up from zero, instead of failing because the Service has no
+// endpoints.
+//
+// It expresses activation behaviour only. Replica counts, scaling thresholds
+// and cooldowns stay in the autoscaler this policy points at, so a Service is
+// never driven by two controllers writing the same replica count.
+//
+// A policy is only honoured while the referenced autoscaler is reachable and
+// the target protocol is activatable. Both are reported through status
+// conditions rather than silently ignored, because a policy that looks applied
+// but never activates is indistinguishable from a broken Service.
+//
+// <!-- crd generation tags
+// +cue-gen:ServiceActivationPolicy:groupName:networking.dubbo.apache.org
+// +cue-gen:ServiceActivationPolicy:versions:v1alpha3
+// +cue-gen:ServiceActivationPolicy:storageVersion
+// +cue-gen:ServiceActivationPolicy:annotations:helm.sh/resource-policy=keep
+// +cue-gen:ServiceActivationPolicy:labels:app=dubbo,chart=dubbo,dubbo=networking,heritage=Tiller,release=dubbo
+// +cue-gen:ServiceActivationPolicy:subresource:status
+// +cue-gen:ServiceActivationPolicy:scope:Namespaced
+// +cue-gen:ServiceActivationPolicy:resource:categories=dubbo,networking,shortNames=sap,plural=serviceactivationpolicies,singular=serviceactivationpolicy
+// +cue-gen:ServiceActivationPolicy:preserveUnknownFields:false
+// +cue-gen:ServiceActivationPolicy:printerColumn:name=Target,type=string,JSONPath=.spec.targetRef.name,description="Service activated by this policy."
+// +cue-gen:ServiceActivationPolicy:printerColumn:name=Autoscaler,type=string,JSONPath=.spec.autoscalerRef.name,description="Autoscaler that owns the replica count."
+// +cue-gen:ServiceActivationPolicy:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp representing the server time when this object was created."
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=networking.dubbo.apache.org/v1alpha3
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+message ServiceActivationPolicy {
+  // Service whose requests may be held during activation.
+  //
+  // Singular, unlike the repeated targets on the other policy attachments: one
+  // policy maps to exactly one autoscaler, and a shared autoscaler across
+  // several Services could not tell which of them the pending demand is for.
+  PolicyTargetReference target_ref = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Autoscaler that owns the replica count for the target, and that activation
+  // demand is reported to.
+  AutoscalerReference autoscaler_ref = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Protocols eligible for activation. Empty means every protocol the gateway
+  // knows how to hold safely.
+  //
+  // Streaming calls are never activatable: a stream cannot be replayed once the
+  // backend is up, so holding one only delays the failure.
+  repeated ActivationProtocol protocols = 3;
+
+  // How long a request may wait for the target to become ready before it is
+  // failed. Defaults to 30s.
+  //
+  // This is the caller's patience, not the workload's cold-start time. Setting
+  // it above the client's own deadline just burns gateway memory on requests
+  // nobody is waiting for any more.
+  google.protobuf.Duration request_timeout = 4;
+
+  // Maximum requests held for this target at once. Defaults to 100.
+  //
+  // Beyond it, further requests are rejected immediately rather than queued:
+  // an unbounded queue converts a cold start into a gateway outage.
+  int32 max_pending_requests = 5;
+
+  // Maximum total body bytes buffered across all pending requests for this
+  // target. Defaults to 8Mi.
+  //
+  // Bounds memory independently of the request count, because request sizes
+  // vary by orders of magnitude and a count alone does not bound anything.
+  int64 max_pending_bytes = 6;
+
+  // What to do when activation cannot proceed, for example because the
+  // autoscaler is unreachable. Defaults to REJECT.
+  FailurePolicy failure_policy = 7;
+}
+
+// AutoscalerReference points at the object that owns the target's replica
+// count. Replica counts and thresholds are deliberately absent from this API:
+// they belong to the referenced object.
+message AutoscalerReference {
+  // API group of the autoscaler. Defaults to keda.sh.
+  string group = 1;
+
+  // Kind of the autoscaler. Defaults to ScaledObject.
+  string kind = 2;
+
+  // Name of the autoscaler object, in the same namespace as this policy.
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+// ActivationProtocol enumerates the request kinds a gateway can hold and
+// replay once the target has endpoints.
+enum ActivationProtocol {
+  // Every protocol the gateway can hold safely.
+  ACTIVATION_PROTOCOL_UNSPECIFIED = 0;
+
+  // Plain HTTP requests with a complete, buffered body.
+  HTTP = 1;
+
+  // gRPC unary calls. Streaming calls are excluded.
+  GRPC_UNARY = 2;
+
+  // Dubbo Triple unary calls. Streaming calls are excluded.
+  TRIPLE_UNARY = 3;
+}
+
+// FailurePolicy decides what happens to traffic when activation is not
+// available. There is no "queue anyway" option: holding requests against an
+// autoscaler that cannot act guarantees a timeout instead of a fast failure.
+enum FailurePolicy {
+  // Same as REJECT.
+  FAILURE_POLICY_UNSPECIFIED = 0;
+
+  // Fail pending and incoming requests immediately, with 503 for HTTP and
+  // RESOURCE_EXHAUSTED for gRPC and Triple.
+  REJECT = 1;
+
+  // Stop scaling the target to zero until activation is available again,
+  // trading idle cost for availability.
+  KEEP_MIN_REPLICAS = 2;
+}
