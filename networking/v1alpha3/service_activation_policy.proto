@@ -115,7 +115,7 @@ message ServiceActivationPolicy {
   //
   // A value may be a ServiceAccount name in the target Service namespace, or
   // a complete spiffe:// URI for a different trust domain.
-  repeated string backend_service_accounts = 8;
+  repeated string backend_service_accounts = 8 [(google.api.field_behavior) = REQUIRED];
 }
 
 // AutoscalerReference points at the object that owns the target's replica
