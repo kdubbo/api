@@ -351,6 +351,12 @@ spec:
                 required:
                 - name
                 type: object
+              backendServiceAccounts:
+                description: ServiceAccounts that may serve the target while it is
+                  hot.
+                items:
+                  type: string
+                type: array
               failurePolicy:
                 description: |-
                   What to do when activation cannot proceed, for example because the autoscaler is unreachable.

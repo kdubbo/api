@@ -230,8 +230,18 @@ type ServiceActivationPolicy struct {
 	// What to do when activation cannot proceed, for example because the
 	// autoscaler is unreachable. Defaults to REJECT.
 	FailurePolicy FailurePolicy `protobuf:"varint,7,opt,name=failure_policy,json=failurePolicy,proto3,enum=dubbo.networking.v1alpha3.FailurePolicy" json:"failure_policy,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// ServiceAccounts that may serve the target while it is hot.
+	//
+	// Declare these identities because a control plane that starts while the
+	// target is scaled to zero cannot discover them from endpoints. Keeping the
+	// backend and Activator identities in one constant CDS SAN allowlist avoids
+	// a certificate-validation race when EDS switches between them.
+	//
+	// A value may be a ServiceAccount name in the target Service namespace, or
+	// a complete spiffe:// URI for a different trust domain.
+	BackendServiceAccounts []string `protobuf:"bytes,8,rep,name=backend_service_accounts,json=backendServiceAccounts,proto3" json:"backend_service_accounts,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ServiceActivationPolicy) Reset() {
@@ -313,6 +323,13 @@ func (x *ServiceActivationPolicy) GetFailurePolicy() FailurePolicy {
 	return FailurePolicy_FAILURE_POLICY_UNSPECIFIED
 }
 
+func (x *ServiceActivationPolicy) GetBackendServiceAccounts() []string {
+	if x != nil {
+		return x.BackendServiceAccounts
+	}
+	return nil
+}
+
 // AutoscalerReference points at the object that owns the target's replica
 // count. Replica counts and thresholds are deliberately absent from this API:
 // they belong to the referenced object.
@@ -383,7 +400,7 @@ var File_networking_v1alpha3_service_activation_policy_proto protoreflect.FileDe
 
 const file_networking_v1alpha3_service_activation_policy_proto_rawDesc = "" +
 	"\n" +
-	"3networking/v1alpha3/service_activation_policy.proto\x12\x19dubbo.networking.v1alpha3\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a0networking/v1alpha3/circuit_breaker_policy.proto\"\x8d\x04\n" +
+	"3networking/v1alpha3/service_activation_policy.proto\x12\x19dubbo.networking.v1alpha3\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a0networking/v1alpha3/circuit_breaker_policy.proto\"\xc7\x04\n" +
 	"\x17ServiceActivationPolicy\x12U\n" +
 	"\n" +
 	"target_ref\x18\x01 \x01(\v20.dubbo.networking.v1alpha3.PolicyTargetReferenceB\x04\xe2A\x01\x02R\ttargetRef\x12[\n" +
@@ -392,7 +409,8 @@ const file_networking_v1alpha3_service_activation_policy_proto_rawDesc = "" +
 	"\x0frequest_timeout\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\x0erequestTimeout\x120\n" +
 	"\x14max_pending_requests\x18\x05 \x01(\x05R\x12maxPendingRequests\x12*\n" +
 	"\x11max_pending_bytes\x18\x06 \x01(\x03R\x0fmaxPendingBytes\x12O\n" +
-	"\x0efailure_policy\x18\a \x01(\x0e2(.dubbo.networking.v1alpha3.FailurePolicyR\rfailurePolicy\"Y\n" +
+	"\x0efailure_policy\x18\a \x01(\x0e2(.dubbo.networking.v1alpha3.FailurePolicyR\rfailurePolicy\x128\n" +
+	"\x18backend_service_accounts\x18\b \x03(\tR\x16backendServiceAccounts\"Y\n" +
 	"\x13AutoscalerReference\x12\x14\n" +
 	"\x05group\x18\x01 \x01(\tR\x05group\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x18\n" +

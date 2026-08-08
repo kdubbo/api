@@ -105,6 +105,17 @@ message ServiceActivationPolicy {
   // What to do when activation cannot proceed, for example because the
   // autoscaler is unreachable. Defaults to REJECT.
   FailurePolicy failure_policy = 7;
+
+  // ServiceAccounts that may serve the target while it is hot.
+  //
+  // Declare these identities because a control plane that starts while the
+  // target is scaled to zero cannot discover them from endpoints. Keeping the
+  // backend and Activator identities in one constant CDS SAN allowlist avoids
+  // a certificate-validation race when EDS switches between them.
+  //
+  // A value may be a ServiceAccount name in the target Service namespace, or
+  // a complete spiffe:// URI for a different trust domain.
+  repeated string backend_service_accounts = 8;
 }
 
 // AutoscalerReference points at the object that owns the target's replica
