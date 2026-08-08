@@ -1,0 +1,208 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+// $schema: dubbo.networking.v1alpha3.DxgateService
+// $title: Dxgate Service
+// $description: Mesh-native LLM, MCP, or A2A backend referenced by Gateway API routes.
+
+package dubbo.networking.v1alpha3;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "/api/networking/v1alpha3";
+
+// DxgateService is the single mesh API for non-standard application protocols
+// served by dxgate. Ordinary HTTP backends remain Kubernetes Services.
+//
+// HTTPRoute backendRefs select a DxgateService exactly as they select a core
+// Service. dubbod validates the reference, resolves its Kubernetes targets and
+// policies, and delivers the compiled configuration to dxgate over xDS. The
+// data plane does not watch a second, private CRD API.
+//
+// <!-- crd generation tags
+// +cue-gen:DxgateService:groupName:networking.dubbo.apache.org
+// +cue-gen:DxgateService:versions:v1alpha3
+// +cue-gen:DxgateService:storageVersion
+// +cue-gen:DxgateService:annotations:helm.sh/resource-policy=keep
+// +cue-gen:DxgateService:labels:app=dubbo,chart=dubbo,dubbo=networking,heritage=Tiller,release=dubbo
+// +cue-gen:DxgateService:subresource:status
+// +cue-gen:DxgateService:scope:Namespaced
+// +cue-gen:DxgateService:resource:categories=dubbo,networking,shortNames=dxsvc,plural=dxgateservices,singular=dxgateservice
+// +cue-gen:DxgateService:preserveUnknownFields:false
+// +cue-gen:DxgateService:printerColumn:name=Age,type=date,JSONPath=.metadata.creationTimestamp,description="CreationTimestamp is a timestamp representing the server time when this object was created."
+// -->
+//
+// <!-- go code generation tags
+// +kubetype-gen
+// +kubetype-gen:groupVersion=networking.dubbo.apache.org/v1alpha3
+// +genclient
+// +k8s:deepcopy-gen=true
+// -->
+message DxgateService {
+  oneof service {
+    AIService ai = 1;
+    MCPService mcp = 2;
+    A2AService a2a = 3;
+  }
+
+  // Policies applied to every HTTPRoute reference to this service.
+  DxgateServicePolicies policies = 4;
+}
+
+// AIService exposes an OpenAI-compatible client surface while allowing dxgate
+// to translate to a native provider dialect.
+message AIService {
+  AIProvider provider = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Models accepted by this backend. Empty accepts any model.
+  repeated string models = 2;
+
+  // Client model alias to upstream model name.
+  map<string, string> model_rewrites = 3;
+
+  // Optional backend URL. Well-known providers use their public endpoint when
+  // omitted; tests and private deployments can point at an in-mesh Service.
+  string endpoint = 4;
+
+  // OpenAI-compatible operations explicitly enabled for this service.
+  // Empty enables chat completions and passthrough operations.
+  map<string, AIOperation> routes = 5;
+}
+
+message AIProvider {
+  oneof provider {
+    OpenAIProvider openai = 1;
+    AnthropicProvider anthropic = 2;
+  }
+
+  // Provider API key. The value remains in a Kubernetes Secret; only the
+  // reference is distributed with routing configuration.
+  SecretKeyReference credential = 3;
+
+  repeated HeaderValue request_headers = 4;
+}
+
+message OpenAIProvider {}
+
+message AnthropicProvider {
+  // Default upstream model. A model rewrite takes precedence.
+  string model = 1;
+}
+
+enum AIOperation {
+  AI_OPERATION_UNSPECIFIED = 0;
+  COMPLETIONS = 1;
+  RESPONSES = 2;
+  EMBEDDINGS = 3;
+  PASSTHROUGH = 4;
+}
+
+// MCPService federates one or more MCP servers behind one route.
+message MCPService {
+  repeated MCPTarget targets = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message MCPTarget {
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  StaticBackend static = 2 [(google.api.field_behavior) = REQUIRED];
+  repeated string tools = 3;
+}
+
+// A2AService forwards Agent2Agent JSON-RPC and Agent Card discovery.
+message A2AService {
+  // Prefer backend_ref for an in-cluster agent. host remains available for a
+  // DNS name or external endpoint that is not represented by a Service.
+  BackendReference backend_ref = 1;
+  string host = 2;
+  uint32 port = 3;
+  string path = 4;
+  string agent = 5;
+}
+
+message StaticBackend {
+  BackendReference backend_ref = 1 [(google.api.field_behavior) = REQUIRED];
+  uint32 port = 2 [(google.api.field_behavior) = REQUIRED];
+  string path = 3;
+}
+
+message BackendReference {
+  // Kubernetes Service name.
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Defaults to the DxgateService namespace.
+  string namespace = 2;
+}
+
+message SecretKeyReference {
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  string key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DxgateServicePolicies {
+  // Client authentication at the gateway.
+  ClientAuthPolicy auth = 1;
+  RateLimitPolicy rate_limit = 2;
+  TokenLimitPolicy token_limit = 3;
+  google.protobuf.Duration timeout = 4;
+  RetryPolicy retry = 5;
+  int64 max_body_bytes = 6;
+  HeaderTransform request_headers = 7;
+  HeaderTransform response_headers = 8;
+}
+
+message ClientAuthPolicy {
+  string header = 1;
+  SecretKeyReference secret_ref = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message RateLimitPolicy {
+  uint32 requests = 1 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Duration window = 2 [(google.api.field_behavior) = REQUIRED];
+  RateLimitKey key = 3;
+  string header = 4;
+}
+
+message TokenLimitPolicy {
+  uint64 tokens = 1 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Duration window = 2 [(google.api.field_behavior) = REQUIRED];
+  RateLimitKey key = 3;
+  string header = 4;
+}
+
+enum RateLimitKey {
+  RATE_LIMIT_KEY_UNSPECIFIED = 0;
+  ROUTE = 1;
+  BACKEND = 2;
+  HEADER = 3;
+}
+
+message RetryPolicy {
+  uint32 attempts = 1;
+  repeated uint32 status_codes = 2;
+}
+
+message HeaderTransform {
+  repeated HeaderValue add = 1;
+  repeated string remove = 2;
+}
+
+message HeaderValue {
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  string value = 2 [(google.api.field_behavior) = REQUIRED];
+}
