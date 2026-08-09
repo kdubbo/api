@@ -52,6 +52,6 @@ message ProxyConfig {
 
   int32 status_port = 26;
 
-  // ProxyImage removed - not needed for proxyless mesh
+  // ProxyImage removed - not needed for Inherent mesh
   // dubbo.networking.v1alpha3.ProxyImage image = 35;
 }

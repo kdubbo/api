@@ -33,9 +33,9 @@ labels:
     resources:
       - Any
 
-  - name: proxyless.dubbo.apache.org/inject
+  - name: inherent.dubbo.apache.org/inject
     featureStatus: Alpha
-    description: Specifies whether or not an proxyless adapter should be automatically
+    description: Specifies whether or not an Inherent adapter should be automatically
       injected into the workload.
     deprecated: false
     hidden: false
@@ -68,4 +68,3 @@ labels:
       - Service
       - PodDisruptionBudget
       - HorizontalPodAutoscaler
-

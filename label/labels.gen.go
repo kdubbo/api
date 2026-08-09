@@ -171,9 +171,9 @@ var (
 		},
 	}
 
-	OrgApacheDubboProxylessInject = Instance{
-		Name: "proxyless.dubbo.apache.org/inject",
-		Description: "Specifies whether or not an proxyless adapter should be " +
+	OrgApacheDubboInherentInject = Instance{
+		Name: "inherent.dubbo.apache.org/inject",
+		Description: "Specifies whether or not an Inherent adapter should be " +
 			"automatically injected into the workload.",
 		FeatureStatus: Alpha,
 		Hidden:        false,
@@ -192,7 +192,7 @@ func AllResourceLabels() []*Instance {
 		&OrgApacheDubboOperatorComponent,
 		&OrgApacheDubboOperatorManaged,
 		&OrgApacheDubboOperatorVersion,
-		&OrgApacheDubboProxylessInject,
+		&OrgApacheDubboInherentInject,
 	}
 }
 

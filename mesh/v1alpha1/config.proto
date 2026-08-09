@@ -83,7 +83,7 @@ message LabelSelectorRequirement {
 
 message ConfigSource {
   string address = 1;
-  // TLS settings removed - not needed for proxyless mesh
+  // TLS settings removed - not needed for Inherent mesh
   // dubbo.networking.v1alpha3.ClientTLSSettings tls_settings = 2;
 }
 
