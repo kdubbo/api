@@ -49,9 +49,8 @@ message MeshConfig {
 
   repeated string default_service_export_to = 7;
 
-  repeated string default_virtual_service_export_to = 8;
-
-  repeated string default_destination_rule_export_to = 9;
+  // Legacy Istio-style traffic resources were removed in favor of Gateway API.
+  reserved 8, 9;
 
   string root_namespace = 10;
 

@@ -40,18 +40,16 @@ const (
 
 // MeshConfig defines mesh-wide runtime settings for the Dubbo service mesh.
 type MeshConfig struct {
-	state                          protoimpl.MessageState        `protogen:"open.v1"`
-	ConnectTimeout                 *durationpb.Duration          `protobuf:"bytes,1,opt,name=connect_timeout,json=connectTimeout,proto3" json:"connect_timeout,omitempty"`
-	DefaultConfig                  *ProxyConfig                  `protobuf:"bytes,2,opt,name=default_config,json=defaultConfig,proto3" json:"default_config,omitempty"`
-	ConfigSources                  []*ConfigSource               `protobuf:"bytes,3,rep,name=config_sources,json=configSources,proto3" json:"config_sources,omitempty"`
-	TrustDomain                    string                        `protobuf:"bytes,4,opt,name=trust_domain,json=trustDomain,proto3" json:"trust_domain,omitempty"`
-	TrustDomainAliases             []string                      `protobuf:"bytes,5,rep,name=trust_domain_aliases,json=trustDomainAliases,proto3" json:"trust_domain_aliases,omitempty"`
-	CaCertificates                 []*MeshConfig_CertificateData `protobuf:"bytes,6,rep,name=ca_certificates,json=caCertificates,proto3" json:"ca_certificates,omitempty"`
-	DefaultServiceExportTo         []string                      `protobuf:"bytes,7,rep,name=default_service_export_to,json=defaultServiceExportTo,proto3" json:"default_service_export_to,omitempty"`
-	DefaultVirtualServiceExportTo  []string                      `protobuf:"bytes,8,rep,name=default_virtual_service_export_to,json=defaultVirtualServiceExportTo,proto3" json:"default_virtual_service_export_to,omitempty"`
-	DefaultDestinationRuleExportTo []string                      `protobuf:"bytes,9,rep,name=default_destination_rule_export_to,json=defaultDestinationRuleExportTo,proto3" json:"default_destination_rule_export_to,omitempty"`
-	RootNamespace                  string                        `protobuf:"bytes,10,opt,name=root_namespace,json=rootNamespace,proto3" json:"root_namespace,omitempty"`
-	DnsRefreshRate                 *durationpb.Duration          `protobuf:"bytes,11,opt,name=dns_refresh_rate,json=dnsRefreshRate,proto3" json:"dns_refresh_rate,omitempty"`
+	state                  protoimpl.MessageState        `protogen:"open.v1"`
+	ConnectTimeout         *durationpb.Duration          `protobuf:"bytes,1,opt,name=connect_timeout,json=connectTimeout,proto3" json:"connect_timeout,omitempty"`
+	DefaultConfig          *ProxyConfig                  `protobuf:"bytes,2,opt,name=default_config,json=defaultConfig,proto3" json:"default_config,omitempty"`
+	ConfigSources          []*ConfigSource               `protobuf:"bytes,3,rep,name=config_sources,json=configSources,proto3" json:"config_sources,omitempty"`
+	TrustDomain            string                        `protobuf:"bytes,4,opt,name=trust_domain,json=trustDomain,proto3" json:"trust_domain,omitempty"`
+	TrustDomainAliases     []string                      `protobuf:"bytes,5,rep,name=trust_domain_aliases,json=trustDomainAliases,proto3" json:"trust_domain_aliases,omitempty"`
+	CaCertificates         []*MeshConfig_CertificateData `protobuf:"bytes,6,rep,name=ca_certificates,json=caCertificates,proto3" json:"ca_certificates,omitempty"`
+	DefaultServiceExportTo []string                      `protobuf:"bytes,7,rep,name=default_service_export_to,json=defaultServiceExportTo,proto3" json:"default_service_export_to,omitempty"`
+	RootNamespace          string                        `protobuf:"bytes,10,opt,name=root_namespace,json=rootNamespace,proto3" json:"root_namespace,omitempty"`
+	DnsRefreshRate         *durationpb.Duration          `protobuf:"bytes,11,opt,name=dns_refresh_rate,json=dnsRefreshRate,proto3" json:"dns_refresh_rate,omitempty"`
 	// Deprecated: Marked as deprecated in config.proto.
 	Certificates  []*Certificate `protobuf:"bytes,12,rep,name=certificates,proto3" json:"certificates,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -133,20 +131,6 @@ func (x *MeshConfig) GetCaCertificates() []*MeshConfig_CertificateData {
 func (x *MeshConfig) GetDefaultServiceExportTo() []string {
 	if x != nil {
 		return x.DefaultServiceExportTo
-	}
-	return nil
-}
-
-func (x *MeshConfig) GetDefaultVirtualServiceExportTo() []string {
-	if x != nil {
-		return x.DefaultVirtualServiceExportTo
-	}
-	return nil
-}
-
-func (x *MeshConfig) GetDefaultDestinationRuleExportTo() []string {
-	if x != nil {
-		return x.DefaultDestinationRuleExportTo
 	}
 	return nil
 }
@@ -488,7 +472,7 @@ var File_config_proto protoreflect.FileDescriptor
 
 const file_config_proto_rawDesc = "" +
 	"\n" +
-	"\fconfig.proto\x12\x13dubbo.mesh.v1alpha1\x1a\x1egoogle/protobuf/duration.proto\x1a\vproxy.proto\"\xd1\a\n" +
+	"\fconfig.proto\x12\x13dubbo.mesh.v1alpha1\x1a\x1egoogle/protobuf/duration.proto\x1a\vproxy.proto\"\xc7\x06\n" +
 	"\n" +
 	"MeshConfig\x12B\n" +
 	"\x0fconnect_timeout\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x0econnectTimeout\x12G\n" +
@@ -497,9 +481,7 @@ const file_config_proto_rawDesc = "" +
 	"\ftrust_domain\x18\x04 \x01(\tR\vtrustDomain\x120\n" +
 	"\x14trust_domain_aliases\x18\x05 \x03(\tR\x12trustDomainAliases\x12X\n" +
 	"\x0fca_certificates\x18\x06 \x03(\v2/.dubbo.mesh.v1alpha1.MeshConfig.CertificateDataR\x0ecaCertificates\x129\n" +
-	"\x19default_service_export_to\x18\a \x03(\tR\x16defaultServiceExportTo\x12H\n" +
-	"!default_virtual_service_export_to\x18\b \x03(\tR\x1ddefaultVirtualServiceExportTo\x12J\n" +
-	"\"default_destination_rule_export_to\x18\t \x03(\tR\x1edefaultDestinationRuleExportTo\x12%\n" +
+	"\x19default_service_export_to\x18\a \x03(\tR\x16defaultServiceExportTo\x12%\n" +
 	"\x0eroot_namespace\x18\n" +
 	" \x01(\tR\rrootNamespace\x12C\n" +
 	"\x10dns_refresh_rate\x18\v \x01(\v2\x19.google.protobuf.DurationR\x0ednsRefreshRate\x12H\n" +
@@ -509,7 +491,8 @@ const file_config_proto_rawDesc = "" +
 	"\x11spiffe_bundle_url\x18\x02 \x01(\tH\x00R\x0fspiffeBundleUrl\x12!\n" +
 	"\fcert_signers\x18\x03 \x03(\tR\vcertSigners\x12#\n" +
 	"\rtrust_domains\x18\x04 \x03(\tR\ftrustDomainsB\x12\n" +
-	"\x10certificate_dataJ\x04\b\r\x10\x10\"\x81\x02\n" +
+	"\x10certificate_dataJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
+	"J\x04\b\r\x10\x10\"\x81\x02\n" +
 	"\rLabelSelector\x12U\n" +
 	"\vmatchLabels\x18\x01 \x03(\v23.dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntryR\vmatchLabels\x12Y\n" +
 	"\x10matchExpressions\x18\x02 \x03(\v2-.dubbo.mesh.v1alpha1.LabelSelectorRequirementR\x10matchExpressions\x1a>\n" +
