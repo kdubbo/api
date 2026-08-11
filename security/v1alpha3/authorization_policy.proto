@@ -57,6 +57,10 @@ message AuthorizationPolicy {
     ALLOW = 0;
     // Deny requests that match any rule.
     DENY = 1;
+    // Audit matching requests without enforcing the decision.
+    AUDIT = 2;
+    // Delegate matching requests to an external authorization provider.
+    CUSTOM = 3;
   }
 
   // The selector determines the workloads to apply the authorization policy on.
@@ -69,11 +73,20 @@ message AuthorizationPolicy {
   // Authorization rules. For ALLOW policies, no matching rule means the request
   // is denied.
   repeated Rule rules = 3;
+
+  // External authorization provider used by CUSTOM policies.
+  ExtensionProvider provider = 4;
+
+  // Evaluate and report this policy without enforcing its result.
+  bool dry_run = 5;
 }
 
 message Rule {
   // Sources of a request.
   repeated From from = 1;
+
+  // Request operations.
+  repeated To to = 3;
 
   // Additional conditions that must match.
   repeated Condition when = 2;
@@ -85,8 +98,72 @@ message From {
 }
 
 message Source {
+  // Peer identities derived from mutual TLS.
+  repeated string principals = 2;
+
+  // Peer identities excluded from this source.
+  repeated string not_principals = 3;
+
   // Request identities derived from validated JWT issuer and subject.
   repeated string request_principals = 1;
+
+  // JWT request identities excluded from this source.
+  repeated string not_request_principals = 4;
+
+  // Source workload namespaces.
+  repeated string namespaces = 5;
+
+  // Source workload namespaces excluded from this source.
+  repeated string not_namespaces = 6;
+
+  // Source workload service accounts in namespace/service-account form.
+  repeated string service_accounts = 7;
+
+  // Source workload service accounts excluded from this source.
+  repeated string not_service_accounts = 8;
+
+  // Source IP blocks observed on the immediate downstream connection.
+  repeated string ip_blocks = 9;
+
+  // Immediate source IP blocks excluded from this source.
+  repeated string not_ip_blocks = 10;
+
+  // Original client IP blocks derived from trusted proxy headers.
+  repeated string remote_ip_blocks = 11;
+
+  // Original client IP blocks excluded from this source.
+  repeated string not_remote_ip_blocks = 12;
+}
+
+message To {
+  // Operation attributes.
+  Operation operation = 1;
+}
+
+message Operation {
+  // HTTP hosts.
+  repeated string hosts = 1;
+
+  // HTTP hosts excluded from this operation.
+  repeated string not_hosts = 2;
+
+  // Destination ports. Values use decimal string form.
+  repeated string ports = 3;
+
+  // Destination ports excluded from this operation.
+  repeated string not_ports = 4;
+
+  // HTTP methods.
+  repeated string methods = 5;
+
+  // HTTP methods excluded from this operation.
+  repeated string not_methods = 6;
+
+  // HTTP paths. A trailing '*' performs prefix matching.
+  repeated string paths = 7;
+
+  // HTTP paths excluded from this operation.
+  repeated string not_paths = 8;
 }
 
 message Condition {
@@ -98,4 +175,9 @@ message Condition {
 
   // Disallowed values.
   repeated string not_values = 3;
+}
+
+message ExtensionProvider {
+  // Name of the configured external authorization provider.
+  string name = 1;
 }

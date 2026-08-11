@@ -78,6 +78,18 @@ message JWTRule {
 
   // JWT locations in query parameters.
   repeated string from_params = 6;
+
+  // JWT locations in cookies.
+  repeated string from_cookies = 7;
+
+  // Preserve the original token for the upstream workload.
+  bool forward_original_token = 8;
+
+  // Copy the validated JWT payload as JSON to this HTTP header.
+  string output_payload_to_header = 9;
+
+  // Copy selected validated claims to HTTP headers.
+  repeated ClaimToHeader output_claim_to_headers = 10;
 }
 
 message JWTHeader {
@@ -86,4 +98,12 @@ message JWTHeader {
 
   // Optional prefix stripped before JWT validation.
   string prefix = 2;
+}
+
+message ClaimToHeader {
+  // JWT claim name. Nested claims use dot-separated path segments.
+  string claim = 1;
+
+  // HTTP header receiving the claim value.
+  string header = 2;
 }

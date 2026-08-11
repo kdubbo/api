@@ -49,6 +49,10 @@ const (
 	AuthorizationPolicy_ALLOW AuthorizationPolicy_Action = 0
 	// Deny requests that match any rule.
 	AuthorizationPolicy_DENY AuthorizationPolicy_Action = 1
+	// Audit matching requests without enforcing the decision.
+	AuthorizationPolicy_AUDIT AuthorizationPolicy_Action = 2
+	// Delegate matching requests to an external authorization provider.
+	AuthorizationPolicy_CUSTOM AuthorizationPolicy_Action = 3
 )
 
 // Enum value maps for AuthorizationPolicy_Action.
@@ -56,10 +60,14 @@ var (
 	AuthorizationPolicy_Action_name = map[int32]string{
 		0: "ALLOW",
 		1: "DENY",
+		2: "AUDIT",
+		3: "CUSTOM",
 	}
 	AuthorizationPolicy_Action_value = map[string]int32{
-		"ALLOW": 0,
-		"DENY":  1,
+		"ALLOW":  0,
+		"DENY":   1,
+		"AUDIT":  2,
+		"CUSTOM": 3,
 	}
 )
 
@@ -124,7 +132,11 @@ type AuthorizationPolicy struct {
 	Action AuthorizationPolicy_Action `protobuf:"varint,2,opt,name=action,proto3,enum=dubbo.security.v1alpha3.AuthorizationPolicy_Action" json:"action,omitempty"`
 	// Authorization rules. For ALLOW policies, no matching rule means the request
 	// is denied.
-	Rules         []*Rule `protobuf:"bytes,3,rep,name=rules,proto3" json:"rules,omitempty"`
+	Rules []*Rule `protobuf:"bytes,3,rep,name=rules,proto3" json:"rules,omitempty"`
+	// External authorization provider used by CUSTOM policies.
+	Provider *ExtensionProvider `protobuf:"bytes,4,opt,name=provider,proto3" json:"provider,omitempty"`
+	// Evaluate and report this policy without enforcing its result.
+	DryRun        bool `protobuf:"varint,5,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -180,10 +192,26 @@ func (x *AuthorizationPolicy) GetRules() []*Rule {
 	return nil
 }
 
+func (x *AuthorizationPolicy) GetProvider() *ExtensionProvider {
+	if x != nil {
+		return x.Provider
+	}
+	return nil
+}
+
+func (x *AuthorizationPolicy) GetDryRun() bool {
+	if x != nil {
+		return x.DryRun
+	}
+	return false
+}
+
 type Rule struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Sources of a request.
 	From []*From `protobuf:"bytes,1,rep,name=from,proto3" json:"from,omitempty"`
+	// Request operations.
+	To []*To `protobuf:"bytes,3,rep,name=to,proto3" json:"to,omitempty"`
 	// Additional conditions that must match.
 	When          []*Condition `protobuf:"bytes,2,rep,name=when,proto3" json:"when,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -223,6 +251,13 @@ func (*Rule) Descriptor() ([]byte, []int) {
 func (x *Rule) GetFrom() []*From {
 	if x != nil {
 		return x.From
+	}
+	return nil
+}
+
+func (x *Rule) GetTo() []*To {
+	if x != nil {
+		return x.To
 	}
 	return nil
 }
@@ -281,8 +316,30 @@ func (x *From) GetSource() *Source {
 
 type Source struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// Peer identities derived from mutual TLS.
+	Principals []string `protobuf:"bytes,2,rep,name=principals,proto3" json:"principals,omitempty"`
+	// Peer identities excluded from this source.
+	NotPrincipals []string `protobuf:"bytes,3,rep,name=not_principals,json=notPrincipals,proto3" json:"not_principals,omitempty"`
 	// Request identities derived from validated JWT issuer and subject.
 	RequestPrincipals []string `protobuf:"bytes,1,rep,name=request_principals,json=requestPrincipals,proto3" json:"request_principals,omitempty"`
+	// JWT request identities excluded from this source.
+	NotRequestPrincipals []string `protobuf:"bytes,4,rep,name=not_request_principals,json=notRequestPrincipals,proto3" json:"not_request_principals,omitempty"`
+	// Source workload namespaces.
+	Namespaces []string `protobuf:"bytes,5,rep,name=namespaces,proto3" json:"namespaces,omitempty"`
+	// Source workload namespaces excluded from this source.
+	NotNamespaces []string `protobuf:"bytes,6,rep,name=not_namespaces,json=notNamespaces,proto3" json:"not_namespaces,omitempty"`
+	// Source workload service accounts in namespace/service-account form.
+	ServiceAccounts []string `protobuf:"bytes,7,rep,name=service_accounts,json=serviceAccounts,proto3" json:"service_accounts,omitempty"`
+	// Source workload service accounts excluded from this source.
+	NotServiceAccounts []string `protobuf:"bytes,8,rep,name=not_service_accounts,json=notServiceAccounts,proto3" json:"not_service_accounts,omitempty"`
+	// Source IP blocks observed on the immediate downstream connection.
+	IpBlocks []string `protobuf:"bytes,9,rep,name=ip_blocks,json=ipBlocks,proto3" json:"ip_blocks,omitempty"`
+	// Immediate source IP blocks excluded from this source.
+	NotIpBlocks []string `protobuf:"bytes,10,rep,name=not_ip_blocks,json=notIpBlocks,proto3" json:"not_ip_blocks,omitempty"`
+	// Original client IP blocks derived from trusted proxy headers.
+	RemoteIpBlocks []string `protobuf:"bytes,11,rep,name=remote_ip_blocks,json=remoteIpBlocks,proto3" json:"remote_ip_blocks,omitempty"`
+	// Original client IP blocks excluded from this source.
+	NotRemoteIpBlocks []string `protobuf:"bytes,12,rep,name=not_remote_ip_blocks,json=notRemoteIpBlocks,proto3" json:"not_remote_ip_blocks,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -317,9 +374,239 @@ func (*Source) Descriptor() ([]byte, []int) {
 	return file_security_v1alpha3_authorization_policy_proto_rawDescGZIP(), []int{3}
 }
 
+func (x *Source) GetPrincipals() []string {
+	if x != nil {
+		return x.Principals
+	}
+	return nil
+}
+
+func (x *Source) GetNotPrincipals() []string {
+	if x != nil {
+		return x.NotPrincipals
+	}
+	return nil
+}
+
 func (x *Source) GetRequestPrincipals() []string {
 	if x != nil {
 		return x.RequestPrincipals
+	}
+	return nil
+}
+
+func (x *Source) GetNotRequestPrincipals() []string {
+	if x != nil {
+		return x.NotRequestPrincipals
+	}
+	return nil
+}
+
+func (x *Source) GetNamespaces() []string {
+	if x != nil {
+		return x.Namespaces
+	}
+	return nil
+}
+
+func (x *Source) GetNotNamespaces() []string {
+	if x != nil {
+		return x.NotNamespaces
+	}
+	return nil
+}
+
+func (x *Source) GetServiceAccounts() []string {
+	if x != nil {
+		return x.ServiceAccounts
+	}
+	return nil
+}
+
+func (x *Source) GetNotServiceAccounts() []string {
+	if x != nil {
+		return x.NotServiceAccounts
+	}
+	return nil
+}
+
+func (x *Source) GetIpBlocks() []string {
+	if x != nil {
+		return x.IpBlocks
+	}
+	return nil
+}
+
+func (x *Source) GetNotIpBlocks() []string {
+	if x != nil {
+		return x.NotIpBlocks
+	}
+	return nil
+}
+
+func (x *Source) GetRemoteIpBlocks() []string {
+	if x != nil {
+		return x.RemoteIpBlocks
+	}
+	return nil
+}
+
+func (x *Source) GetNotRemoteIpBlocks() []string {
+	if x != nil {
+		return x.NotRemoteIpBlocks
+	}
+	return nil
+}
+
+type To struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Operation attributes.
+	Operation     *Operation `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *To) Reset() {
+	*x = To{}
+	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *To) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*To) ProtoMessage() {}
+
+func (x *To) ProtoReflect() protoreflect.Message {
+	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use To.ProtoReflect.Descriptor instead.
+func (*To) Descriptor() ([]byte, []int) {
+	return file_security_v1alpha3_authorization_policy_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *To) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
+type Operation struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// HTTP hosts.
+	Hosts []string `protobuf:"bytes,1,rep,name=hosts,proto3" json:"hosts,omitempty"`
+	// HTTP hosts excluded from this operation.
+	NotHosts []string `protobuf:"bytes,2,rep,name=not_hosts,json=notHosts,proto3" json:"not_hosts,omitempty"`
+	// Destination ports. Values use decimal string form.
+	Ports []string `protobuf:"bytes,3,rep,name=ports,proto3" json:"ports,omitempty"`
+	// Destination ports excluded from this operation.
+	NotPorts []string `protobuf:"bytes,4,rep,name=not_ports,json=notPorts,proto3" json:"not_ports,omitempty"`
+	// HTTP methods.
+	Methods []string `protobuf:"bytes,5,rep,name=methods,proto3" json:"methods,omitempty"`
+	// HTTP methods excluded from this operation.
+	NotMethods []string `protobuf:"bytes,6,rep,name=not_methods,json=notMethods,proto3" json:"not_methods,omitempty"`
+	// HTTP paths. A trailing '*' performs prefix matching.
+	Paths []string `protobuf:"bytes,7,rep,name=paths,proto3" json:"paths,omitempty"`
+	// HTTP paths excluded from this operation.
+	NotPaths      []string `protobuf:"bytes,8,rep,name=not_paths,json=notPaths,proto3" json:"not_paths,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Operation) Reset() {
+	*x = Operation{}
+	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Operation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Operation) ProtoMessage() {}
+
+func (x *Operation) ProtoReflect() protoreflect.Message {
+	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Operation.ProtoReflect.Descriptor instead.
+func (*Operation) Descriptor() ([]byte, []int) {
+	return file_security_v1alpha3_authorization_policy_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Operation) GetHosts() []string {
+	if x != nil {
+		return x.Hosts
+	}
+	return nil
+}
+
+func (x *Operation) GetNotHosts() []string {
+	if x != nil {
+		return x.NotHosts
+	}
+	return nil
+}
+
+func (x *Operation) GetPorts() []string {
+	if x != nil {
+		return x.Ports
+	}
+	return nil
+}
+
+func (x *Operation) GetNotPorts() []string {
+	if x != nil {
+		return x.NotPorts
+	}
+	return nil
+}
+
+func (x *Operation) GetMethods() []string {
+	if x != nil {
+		return x.Methods
+	}
+	return nil
+}
+
+func (x *Operation) GetNotMethods() []string {
+	if x != nil {
+		return x.NotMethods
+	}
+	return nil
+}
+
+func (x *Operation) GetPaths() []string {
+	if x != nil {
+		return x.Paths
+	}
+	return nil
+}
+
+func (x *Operation) GetNotPaths() []string {
+	if x != nil {
+		return x.NotPaths
 	}
 	return nil
 }
@@ -338,7 +625,7 @@ type Condition struct {
 
 func (x *Condition) Reset() {
 	*x = Condition{}
-	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[4]
+	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -350,7 +637,7 @@ func (x *Condition) String() string {
 func (*Condition) ProtoMessage() {}
 
 func (x *Condition) ProtoReflect() protoreflect.Message {
-	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[4]
+	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -363,7 +650,7 @@ func (x *Condition) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Condition.ProtoReflect.Descriptor instead.
 func (*Condition) Descriptor() ([]byte, []int) {
-	return file_security_v1alpha3_authorization_policy_proto_rawDescGZIP(), []int{4}
+	return file_security_v1alpha3_authorization_policy_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Condition) GetKey() string {
@@ -387,30 +674,111 @@ func (x *Condition) GetNotValues() []string {
 	return nil
 }
 
+type ExtensionProvider struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Name of the configured external authorization provider.
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExtensionProvider) Reset() {
+	*x = ExtensionProvider{}
+	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExtensionProvider) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExtensionProvider) ProtoMessage() {}
+
+func (x *ExtensionProvider) ProtoReflect() protoreflect.Message {
+	mi := &file_security_v1alpha3_authorization_policy_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExtensionProvider.ProtoReflect.Descriptor instead.
+func (*ExtensionProvider) Descriptor() ([]byte, []int) {
+	return file_security_v1alpha3_authorization_policy_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ExtensionProvider) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 var File_security_v1alpha3_authorization_policy_proto protoreflect.FileDescriptor
 
 const file_security_v1alpha3_authorization_policy_proto_rawDesc = "" +
 	"\n" +
-	",security/v1alpha3/authorization_policy.proto\x12\x17dubbo.security.v1alpha3\x1a\x1ctype/v1alpha3/selector.proto\"\xf9\x01\n" +
+	",security/v1alpha3/authorization_policy.proto\x12\x17dubbo.security.v1alpha3\x1a\x1ctype/v1alpha3/selector.proto\"\xf1\x02\n" +
 	"\x13AuthorizationPolicy\x12A\n" +
 	"\bselector\x18\x01 \x01(\v2%.dubbo.type.v1alpha3.WorkloadSelectorR\bselector\x12K\n" +
 	"\x06action\x18\x02 \x01(\x0e23.dubbo.security.v1alpha3.AuthorizationPolicy.ActionR\x06action\x123\n" +
-	"\x05rules\x18\x03 \x03(\v2\x1d.dubbo.security.v1alpha3.RuleR\x05rules\"\x1d\n" +
+	"\x05rules\x18\x03 \x03(\v2\x1d.dubbo.security.v1alpha3.RuleR\x05rules\x12F\n" +
+	"\bprovider\x18\x04 \x01(\v2*.dubbo.security.v1alpha3.ExtensionProviderR\bprovider\x12\x17\n" +
+	"\adry_run\x18\x05 \x01(\bR\x06dryRun\"4\n" +
 	"\x06Action\x12\t\n" +
 	"\x05ALLOW\x10\x00\x12\b\n" +
-	"\x04DENY\x10\x01\"q\n" +
+	"\x04DENY\x10\x01\x12\t\n" +
+	"\x05AUDIT\x10\x02\x12\n" +
+	"\n" +
+	"\x06CUSTOM\x10\x03\"\x9e\x01\n" +
 	"\x04Rule\x121\n" +
-	"\x04from\x18\x01 \x03(\v2\x1d.dubbo.security.v1alpha3.FromR\x04from\x126\n" +
+	"\x04from\x18\x01 \x03(\v2\x1d.dubbo.security.v1alpha3.FromR\x04from\x12+\n" +
+	"\x02to\x18\x03 \x03(\v2\x1b.dubbo.security.v1alpha3.ToR\x02to\x126\n" +
 	"\x04when\x18\x02 \x03(\v2\".dubbo.security.v1alpha3.ConditionR\x04when\"?\n" +
 	"\x04From\x127\n" +
-	"\x06source\x18\x01 \x01(\v2\x1f.dubbo.security.v1alpha3.SourceR\x06source\"7\n" +
-	"\x06Source\x12-\n" +
-	"\x12request_principals\x18\x01 \x03(\tR\x11requestPrincipals\"T\n" +
+	"\x06source\x18\x01 \x01(\v2\x1f.dubbo.security.v1alpha3.SourceR\x06source\"\xf4\x03\n" +
+	"\x06Source\x12\x1e\n" +
+	"\n" +
+	"principals\x18\x02 \x03(\tR\n" +
+	"principals\x12%\n" +
+	"\x0enot_principals\x18\x03 \x03(\tR\rnotPrincipals\x12-\n" +
+	"\x12request_principals\x18\x01 \x03(\tR\x11requestPrincipals\x124\n" +
+	"\x16not_request_principals\x18\x04 \x03(\tR\x14notRequestPrincipals\x12\x1e\n" +
+	"\n" +
+	"namespaces\x18\x05 \x03(\tR\n" +
+	"namespaces\x12%\n" +
+	"\x0enot_namespaces\x18\x06 \x03(\tR\rnotNamespaces\x12)\n" +
+	"\x10service_accounts\x18\a \x03(\tR\x0fserviceAccounts\x120\n" +
+	"\x14not_service_accounts\x18\b \x03(\tR\x12notServiceAccounts\x12\x1b\n" +
+	"\tip_blocks\x18\t \x03(\tR\bipBlocks\x12\"\n" +
+	"\rnot_ip_blocks\x18\n" +
+	" \x03(\tR\vnotIpBlocks\x12(\n" +
+	"\x10remote_ip_blocks\x18\v \x03(\tR\x0eremoteIpBlocks\x12/\n" +
+	"\x14not_remote_ip_blocks\x18\f \x03(\tR\x11notRemoteIpBlocks\"F\n" +
+	"\x02To\x12@\n" +
+	"\toperation\x18\x01 \x01(\v2\".dubbo.security.v1alpha3.OperationR\toperation\"\xdf\x01\n" +
+	"\tOperation\x12\x14\n" +
+	"\x05hosts\x18\x01 \x03(\tR\x05hosts\x12\x1b\n" +
+	"\tnot_hosts\x18\x02 \x03(\tR\bnotHosts\x12\x14\n" +
+	"\x05ports\x18\x03 \x03(\tR\x05ports\x12\x1b\n" +
+	"\tnot_ports\x18\x04 \x03(\tR\bnotPorts\x12\x18\n" +
+	"\amethods\x18\x05 \x03(\tR\amethods\x12\x1f\n" +
+	"\vnot_methods\x18\x06 \x03(\tR\n" +
+	"notMethods\x12\x14\n" +
+	"\x05paths\x18\a \x03(\tR\x05paths\x12\x1b\n" +
+	"\tnot_paths\x18\b \x03(\tR\bnotPaths\"T\n" +
 	"\tCondition\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x16\n" +
 	"\x06values\x18\x02 \x03(\tR\x06values\x12\x1d\n" +
 	"\n" +
-	"not_values\x18\x03 \x03(\tR\tnotValuesB\x18Z\x16/api/security/v1alpha3b\x06proto3"
+	"not_values\x18\x03 \x03(\tR\tnotValues\"'\n" +
+	"\x11ExtensionProvider\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04nameB\x18Z\x16/api/security/v1alpha3b\x06proto3"
 
 var (
 	file_security_v1alpha3_authorization_policy_proto_rawDescOnce sync.Once
@@ -425,28 +793,34 @@ func file_security_v1alpha3_authorization_policy_proto_rawDescGZIP() []byte {
 }
 
 var file_security_v1alpha3_authorization_policy_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_security_v1alpha3_authorization_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_security_v1alpha3_authorization_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_security_v1alpha3_authorization_policy_proto_goTypes = []any{
 	(AuthorizationPolicy_Action)(0),   // 0: dubbo.security.v1alpha3.AuthorizationPolicy.Action
 	(*AuthorizationPolicy)(nil),       // 1: dubbo.security.v1alpha3.AuthorizationPolicy
 	(*Rule)(nil),                      // 2: dubbo.security.v1alpha3.Rule
 	(*From)(nil),                      // 3: dubbo.security.v1alpha3.From
 	(*Source)(nil),                    // 4: dubbo.security.v1alpha3.Source
-	(*Condition)(nil),                 // 5: dubbo.security.v1alpha3.Condition
-	(*v1alpha3.WorkloadSelector)(nil), // 6: dubbo.type.v1alpha3.WorkloadSelector
+	(*To)(nil),                        // 5: dubbo.security.v1alpha3.To
+	(*Operation)(nil),                 // 6: dubbo.security.v1alpha3.Operation
+	(*Condition)(nil),                 // 7: dubbo.security.v1alpha3.Condition
+	(*ExtensionProvider)(nil),         // 8: dubbo.security.v1alpha3.ExtensionProvider
+	(*v1alpha3.WorkloadSelector)(nil), // 9: dubbo.type.v1alpha3.WorkloadSelector
 }
 var file_security_v1alpha3_authorization_policy_proto_depIdxs = []int32{
-	6, // 0: dubbo.security.v1alpha3.AuthorizationPolicy.selector:type_name -> dubbo.type.v1alpha3.WorkloadSelector
+	9, // 0: dubbo.security.v1alpha3.AuthorizationPolicy.selector:type_name -> dubbo.type.v1alpha3.WorkloadSelector
 	0, // 1: dubbo.security.v1alpha3.AuthorizationPolicy.action:type_name -> dubbo.security.v1alpha3.AuthorizationPolicy.Action
 	2, // 2: dubbo.security.v1alpha3.AuthorizationPolicy.rules:type_name -> dubbo.security.v1alpha3.Rule
-	3, // 3: dubbo.security.v1alpha3.Rule.from:type_name -> dubbo.security.v1alpha3.From
-	5, // 4: dubbo.security.v1alpha3.Rule.when:type_name -> dubbo.security.v1alpha3.Condition
-	4, // 5: dubbo.security.v1alpha3.From.source:type_name -> dubbo.security.v1alpha3.Source
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	8, // 3: dubbo.security.v1alpha3.AuthorizationPolicy.provider:type_name -> dubbo.security.v1alpha3.ExtensionProvider
+	3, // 4: dubbo.security.v1alpha3.Rule.from:type_name -> dubbo.security.v1alpha3.From
+	5, // 5: dubbo.security.v1alpha3.Rule.to:type_name -> dubbo.security.v1alpha3.To
+	7, // 6: dubbo.security.v1alpha3.Rule.when:type_name -> dubbo.security.v1alpha3.Condition
+	4, // 7: dubbo.security.v1alpha3.From.source:type_name -> dubbo.security.v1alpha3.Source
+	6, // 8: dubbo.security.v1alpha3.To.operation:type_name -> dubbo.security.v1alpha3.Operation
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_security_v1alpha3_authorization_policy_proto_init() }
@@ -460,7 +834,7 @@ func file_security_v1alpha3_authorization_policy_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_security_v1alpha3_authorization_policy_proto_rawDesc), len(file_security_v1alpha3_authorization_policy_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

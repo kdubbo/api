@@ -50,6 +50,28 @@ func (this *Source) UnmarshalJSON(b []byte) error {
 	return AuthorizationPolicyUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
+// MarshalJSON is a custom marshaler for To
+func (this *To) MarshalJSON() ([]byte, error) {
+	str, err := AuthorizationPolicyMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for To
+func (this *To) UnmarshalJSON(b []byte) error {
+	return AuthorizationPolicyUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for Operation
+func (this *Operation) MarshalJSON() ([]byte, error) {
+	str, err := AuthorizationPolicyMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for Operation
+func (this *Operation) UnmarshalJSON(b []byte) error {
+	return AuthorizationPolicyUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
 // MarshalJSON is a custom marshaler for Condition
 func (this *Condition) MarshalJSON() ([]byte, error) {
 	str, err := AuthorizationPolicyMarshaler.MarshalToString(this)
@@ -58,6 +80,17 @@ func (this *Condition) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON is a custom unmarshaler for Condition
 func (this *Condition) UnmarshalJSON(b []byte) error {
+	return AuthorizationPolicyUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for ExtensionProvider
+func (this *ExtensionProvider) MarshalJSON() ([]byte, error) {
+	str, err := AuthorizationPolicyMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for ExtensionProvider
+func (this *ExtensionProvider) UnmarshalJSON(b []byte) error {
 	return AuthorizationPolicyUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
