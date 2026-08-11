@@ -135,17 +135,9 @@ type JWTRule struct {
 	// JWT locations in request headers. If empty, Authorization: Bearer is used.
 	FromHeaders []*JWTHeader `protobuf:"bytes,5,rep,name=from_headers,json=fromHeaders,proto3" json:"from_headers,omitempty"`
 	// JWT locations in query parameters.
-	FromParams []string `protobuf:"bytes,6,rep,name=from_params,json=fromParams,proto3" json:"from_params,omitempty"`
-	// JWT locations in cookies.
-	FromCookies []string `protobuf:"bytes,7,rep,name=from_cookies,json=fromCookies,proto3" json:"from_cookies,omitempty"`
-	// Preserve the original token for the upstream workload.
-	ForwardOriginalToken bool `protobuf:"varint,8,opt,name=forward_original_token,json=forwardOriginalToken,proto3" json:"forward_original_token,omitempty"`
-	// Copy the validated JWT payload as JSON to this HTTP header.
-	OutputPayloadToHeader string `protobuf:"bytes,9,opt,name=output_payload_to_header,json=outputPayloadToHeader,proto3" json:"output_payload_to_header,omitempty"`
-	// Copy selected validated claims to HTTP headers.
-	OutputClaimToHeaders []*ClaimToHeader `protobuf:"bytes,10,rep,name=output_claim_to_headers,json=outputClaimToHeaders,proto3" json:"output_claim_to_headers,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	FromParams    []string `protobuf:"bytes,6,rep,name=from_params,json=fromParams,proto3" json:"from_params,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *JWTRule) Reset() {
@@ -220,34 +212,6 @@ func (x *JWTRule) GetFromParams() []string {
 	return nil
 }
 
-func (x *JWTRule) GetFromCookies() []string {
-	if x != nil {
-		return x.FromCookies
-	}
-	return nil
-}
-
-func (x *JWTRule) GetForwardOriginalToken() bool {
-	if x != nil {
-		return x.ForwardOriginalToken
-	}
-	return false
-}
-
-func (x *JWTRule) GetOutputPayloadToHeader() string {
-	if x != nil {
-		return x.OutputPayloadToHeader
-	}
-	return ""
-}
-
-func (x *JWTRule) GetOutputClaimToHeaders() []*ClaimToHeader {
-	if x != nil {
-		return x.OutputClaimToHeaders
-	}
-	return nil
-}
-
 type JWTHeader struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Header name.
@@ -302,60 +266,6 @@ func (x *JWTHeader) GetPrefix() string {
 	return ""
 }
 
-type ClaimToHeader struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// JWT claim name. Nested claims use dot-separated path segments.
-	Claim string `protobuf:"bytes,1,opt,name=claim,proto3" json:"claim,omitempty"`
-	// HTTP header receiving the claim value.
-	Header        string `protobuf:"bytes,2,opt,name=header,proto3" json:"header,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ClaimToHeader) Reset() {
-	*x = ClaimToHeader{}
-	mi := &file_security_v1alpha3_request_authentication_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ClaimToHeader) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ClaimToHeader) ProtoMessage() {}
-
-func (x *ClaimToHeader) ProtoReflect() protoreflect.Message {
-	mi := &file_security_v1alpha3_request_authentication_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ClaimToHeader.ProtoReflect.Descriptor instead.
-func (*ClaimToHeader) Descriptor() ([]byte, []int) {
-	return file_security_v1alpha3_request_authentication_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ClaimToHeader) GetClaim() string {
-	if x != nil {
-		return x.Claim
-	}
-	return ""
-}
-
-func (x *ClaimToHeader) GetHeader() string {
-	if x != nil {
-		return x.Header
-	}
-	return ""
-}
-
 var File_security_v1alpha3_request_authentication_proto protoreflect.FileDescriptor
 
 const file_security_v1alpha3_request_authentication_proto_rawDesc = "" +
@@ -363,7 +273,7 @@ const file_security_v1alpha3_request_authentication_proto_rawDesc = "" +
 	".security/v1alpha3/request_authentication.proto\x12\x17dubbo.security.v1alpha3\x1a\x1ctype/v1alpha3/selector.proto\"\x99\x01\n" +
 	"\x15RequestAuthentication\x12A\n" +
 	"\bselector\x18\x01 \x01(\v2%.dubbo.type.v1alpha3.WorkloadSelectorR\bselector\x12=\n" +
-	"\tjwt_rules\x18\x02 \x03(\v2 .dubbo.security.v1alpha3.JWTRuleR\bjwtRules\"\xc7\x03\n" +
+	"\tjwt_rules\x18\x02 \x03(\v2 .dubbo.security.v1alpha3.JWTRuleR\bjwtRules\"\xd6\x01\n" +
 	"\aJWTRule\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\x1c\n" +
 	"\taudiences\x18\x02 \x03(\tR\taudiences\x12\x19\n" +
@@ -371,18 +281,10 @@ const file_security_v1alpha3_request_authentication_proto_rawDesc = "" +
 	"\x04jwks\x18\x04 \x01(\tR\x04jwks\x12E\n" +
 	"\ffrom_headers\x18\x05 \x03(\v2\".dubbo.security.v1alpha3.JWTHeaderR\vfromHeaders\x12\x1f\n" +
 	"\vfrom_params\x18\x06 \x03(\tR\n" +
-	"fromParams\x12!\n" +
-	"\ffrom_cookies\x18\a \x03(\tR\vfromCookies\x124\n" +
-	"\x16forward_original_token\x18\b \x01(\bR\x14forwardOriginalToken\x127\n" +
-	"\x18output_payload_to_header\x18\t \x01(\tR\x15outputPayloadToHeader\x12]\n" +
-	"\x17output_claim_to_headers\x18\n" +
-	" \x03(\v2&.dubbo.security.v1alpha3.ClaimToHeaderR\x14outputClaimToHeaders\"7\n" +
+	"fromParams\"7\n" +
 	"\tJWTHeader\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
-	"\x06prefix\x18\x02 \x01(\tR\x06prefix\"=\n" +
-	"\rClaimToHeader\x12\x14\n" +
-	"\x05claim\x18\x01 \x01(\tR\x05claim\x12\x16\n" +
-	"\x06header\x18\x02 \x01(\tR\x06headerB\x18Z\x16/api/security/v1alpha3b\x06proto3"
+	"\x06prefix\x18\x02 \x01(\tR\x06prefixB\x18Z\x16/api/security/v1alpha3b\x06proto3"
 
 var (
 	file_security_v1alpha3_request_authentication_proto_rawDescOnce sync.Once
@@ -396,24 +298,22 @@ func file_security_v1alpha3_request_authentication_proto_rawDescGZIP() []byte {
 	return file_security_v1alpha3_request_authentication_proto_rawDescData
 }
 
-var file_security_v1alpha3_request_authentication_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_security_v1alpha3_request_authentication_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_security_v1alpha3_request_authentication_proto_goTypes = []any{
 	(*RequestAuthentication)(nil),     // 0: dubbo.security.v1alpha3.RequestAuthentication
 	(*JWTRule)(nil),                   // 1: dubbo.security.v1alpha3.JWTRule
 	(*JWTHeader)(nil),                 // 2: dubbo.security.v1alpha3.JWTHeader
-	(*ClaimToHeader)(nil),             // 3: dubbo.security.v1alpha3.ClaimToHeader
-	(*v1alpha3.WorkloadSelector)(nil), // 4: dubbo.type.v1alpha3.WorkloadSelector
+	(*v1alpha3.WorkloadSelector)(nil), // 3: dubbo.type.v1alpha3.WorkloadSelector
 }
 var file_security_v1alpha3_request_authentication_proto_depIdxs = []int32{
-	4, // 0: dubbo.security.v1alpha3.RequestAuthentication.selector:type_name -> dubbo.type.v1alpha3.WorkloadSelector
+	3, // 0: dubbo.security.v1alpha3.RequestAuthentication.selector:type_name -> dubbo.type.v1alpha3.WorkloadSelector
 	1, // 1: dubbo.security.v1alpha3.RequestAuthentication.jwt_rules:type_name -> dubbo.security.v1alpha3.JWTRule
 	2, // 2: dubbo.security.v1alpha3.JWTRule.from_headers:type_name -> dubbo.security.v1alpha3.JWTHeader
-	3, // 3: dubbo.security.v1alpha3.JWTRule.output_claim_to_headers:type_name -> dubbo.security.v1alpha3.ClaimToHeader
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_security_v1alpha3_request_authentication_proto_init() }
@@ -427,7 +327,7 @@ func file_security_v1alpha3_request_authentication_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_security_v1alpha3_request_authentication_proto_rawDesc), len(file_security_v1alpha3_request_authentication_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

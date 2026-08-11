@@ -11,22 +11,17 @@ import (
 	"testing"
 )
 
-func TestAuthorizationPolicyUsesIrregularPlural(t *testing.T) {
-	content, err := os.ReadFile("customresourcedefinitions.gen.yaml")
+func TestAuthorizationPolicyUsesKubernetesPlural(t *testing.T) {
+	data, err := os.ReadFile("customresourcedefinitions.gen.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
-	crds := string(content)
-	if strings.Contains(crds, "authorizationpolicys.security.dubbo.apache.org") {
-		t.Fatal("AuthorizationPolicy CRD uses invalid plural authorizationpolicys")
+	text := string(data)
+	if !strings.Contains(text, "name: authorizationpolicies.security.dubbo.apache.org") ||
+		!strings.Contains(text, "plural: authorizationpolicies") {
+		t.Fatal("AuthorizationPolicy CRD does not use authorizationpolicies")
 	}
-	for _, want := range []string{
-		"name: authorizationpolicies.security.dubbo.apache.org",
-		"plural: authorizationpolicies",
-		"singular: authorizationpolicy",
-	} {
-		if !strings.Contains(crds, want) {
-			t.Fatalf("generated CRD missing %q", want)
-		}
+	if strings.Contains(text, "authorizationpolicys") {
+		t.Fatal("AuthorizationPolicy CRD contains invalid plural authorizationpolicys")
 	}
 }

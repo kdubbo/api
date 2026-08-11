@@ -18,7 +18,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.33.0
-// source: mesh/v1alpha1/config.proto
+// source: config.proto
 
 package v1alpha1
 
@@ -38,58 +38,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type MeshMTLS_TLSProtocol int32
-
-const (
-	// Use the implementation default, currently TLS 1.2.
-	MeshMTLS_TLS_AUTO MeshMTLS_TLSProtocol = 0
-	// Require TLS 1.2 or newer.
-	MeshMTLS_TLSV1_2 MeshMTLS_TLSProtocol = 1
-	// Require TLS 1.3.
-	MeshMTLS_TLSV1_3 MeshMTLS_TLSProtocol = 2
-)
-
-// Enum value maps for MeshMTLS_TLSProtocol.
-var (
-	MeshMTLS_TLSProtocol_name = map[int32]string{
-		0: "TLS_AUTO",
-		1: "TLSV1_2",
-		2: "TLSV1_3",
-	}
-	MeshMTLS_TLSProtocol_value = map[string]int32{
-		"TLS_AUTO": 0,
-		"TLSV1_2":  1,
-		"TLSV1_3":  2,
-	}
-)
-
-func (x MeshMTLS_TLSProtocol) Enum() *MeshMTLS_TLSProtocol {
-	p := new(MeshMTLS_TLSProtocol)
-	*p = x
-	return p
-}
-
-func (x MeshMTLS_TLSProtocol) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (MeshMTLS_TLSProtocol) Descriptor() protoreflect.EnumDescriptor {
-	return file_mesh_v1alpha1_config_proto_enumTypes[0].Descriptor()
-}
-
-func (MeshMTLS_TLSProtocol) Type() protoreflect.EnumType {
-	return &file_mesh_v1alpha1_config_proto_enumTypes[0]
-}
-
-func (x MeshMTLS_TLSProtocol) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use MeshMTLS_TLSProtocol.Descriptor instead.
-func (MeshMTLS_TLSProtocol) EnumDescriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{1, 0}
-}
-
 // MeshConfig defines mesh-wide runtime settings for the Dubbo service mesh.
 type MeshConfig struct {
 	state                  protoimpl.MessageState        `protogen:"open.v1"`
@@ -102,19 +50,15 @@ type MeshConfig struct {
 	DefaultServiceExportTo []string                      `protobuf:"bytes,7,rep,name=default_service_export_to,json=defaultServiceExportTo,proto3" json:"default_service_export_to,omitempty"`
 	RootNamespace          string                        `protobuf:"bytes,10,opt,name=root_namespace,json=rootNamespace,proto3" json:"root_namespace,omitempty"`
 	DnsRefreshRate         *durationpb.Duration          `protobuf:"bytes,11,opt,name=dns_refresh_rate,json=dnsRefreshRate,proto3" json:"dns_refresh_rate,omitempty"`
-	// Deprecated: Marked as deprecated in mesh/v1alpha1/config.proto.
-	Certificates []*Certificate `protobuf:"bytes,12,rep,name=certificates,proto3" json:"certificates,omitempty"`
-	// Mesh-wide mutual TLS defaults.
-	MeshMtls *MeshMTLS `protobuf:"bytes,16,opt,name=mesh_mtls,json=meshMtls,proto3" json:"mesh_mtls,omitempty"`
-	// Named extension providers referenced by security policies.
-	ExtensionProviders []*MeshExtensionProvider `protobuf:"bytes,17,rep,name=extension_providers,json=extensionProviders,proto3" json:"extension_providers,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Deprecated: Marked as deprecated in config.proto.
+	Certificates  []*Certificate `protobuf:"bytes,12,rep,name=certificates,proto3" json:"certificates,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MeshConfig) Reset() {
 	*x = MeshConfig{}
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[0]
+	mi := &file_config_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -126,7 +70,7 @@ func (x *MeshConfig) String() string {
 func (*MeshConfig) ProtoMessage() {}
 
 func (x *MeshConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[0]
+	mi := &file_config_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -139,7 +83,7 @@ func (x *MeshConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MeshConfig.ProtoReflect.Descriptor instead.
 func (*MeshConfig) Descriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{0}
+	return file_config_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *MeshConfig) GetConnectTimeout() *durationpb.Duration {
@@ -205,272 +149,12 @@ func (x *MeshConfig) GetDnsRefreshRate() *durationpb.Duration {
 	return nil
 }
 
-// Deprecated: Marked as deprecated in mesh/v1alpha1/config.proto.
+// Deprecated: Marked as deprecated in config.proto.
 func (x *MeshConfig) GetCertificates() []*Certificate {
 	if x != nil {
 		return x.Certificates
 	}
 	return nil
-}
-
-func (x *MeshConfig) GetMeshMtls() *MeshMTLS {
-	if x != nil {
-		return x.MeshMtls
-	}
-	return nil
-}
-
-func (x *MeshConfig) GetExtensionProviders() []*MeshExtensionProvider {
-	if x != nil {
-		return x.ExtensionProviders
-	}
-	return nil
-}
-
-type MeshMTLS struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Minimum protocol version accepted for mesh mutual TLS.
-	MinProtocolVersion MeshMTLS_TLSProtocol `protobuf:"varint,1,opt,name=min_protocol_version,json=minProtocolVersion,proto3,enum=dubbo.mesh.v1alpha1.MeshMTLS_TLSProtocol" json:"min_protocol_version,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *MeshMTLS) Reset() {
-	*x = MeshMTLS{}
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MeshMTLS) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MeshMTLS) ProtoMessage() {}
-
-func (x *MeshMTLS) ProtoReflect() protoreflect.Message {
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MeshMTLS.ProtoReflect.Descriptor instead.
-func (*MeshMTLS) Descriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *MeshMTLS) GetMinProtocolVersion() MeshMTLS_TLSProtocol {
-	if x != nil {
-		return x.MinProtocolVersion
-	}
-	return MeshMTLS_TLS_AUTO
-}
-
-type MeshExtensionProvider struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Unique provider name referenced by AuthorizationPolicy.provider.name.
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Types that are valid to be assigned to Provider:
-	//
-	//	*MeshExtensionProvider_EnvoyExtAuthzHttp
-	//	*MeshExtensionProvider_EnvoyExtAuthzGrpc
-	Provider      isMeshExtensionProvider_Provider `protobuf_oneof:"provider"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MeshExtensionProvider) Reset() {
-	*x = MeshExtensionProvider{}
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MeshExtensionProvider) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MeshExtensionProvider) ProtoMessage() {}
-
-func (x *MeshExtensionProvider) ProtoReflect() protoreflect.Message {
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MeshExtensionProvider.ProtoReflect.Descriptor instead.
-func (*MeshExtensionProvider) Descriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *MeshExtensionProvider) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *MeshExtensionProvider) GetProvider() isMeshExtensionProvider_Provider {
-	if x != nil {
-		return x.Provider
-	}
-	return nil
-}
-
-func (x *MeshExtensionProvider) GetEnvoyExtAuthzHttp() *ExternalAuthorizationProvider {
-	if x != nil {
-		if x, ok := x.Provider.(*MeshExtensionProvider_EnvoyExtAuthzHttp); ok {
-			return x.EnvoyExtAuthzHttp
-		}
-	}
-	return nil
-}
-
-func (x *MeshExtensionProvider) GetEnvoyExtAuthzGrpc() *ExternalAuthorizationProvider {
-	if x != nil {
-		if x, ok := x.Provider.(*MeshExtensionProvider_EnvoyExtAuthzGrpc); ok {
-			return x.EnvoyExtAuthzGrpc
-		}
-	}
-	return nil
-}
-
-type isMeshExtensionProvider_Provider interface {
-	isMeshExtensionProvider_Provider()
-}
-
-type MeshExtensionProvider_EnvoyExtAuthzHttp struct {
-	// HTTP external authorization service.
-	EnvoyExtAuthzHttp *ExternalAuthorizationProvider `protobuf:"bytes,2,opt,name=envoy_ext_authz_http,json=envoyExtAuthzHttp,proto3,oneof"`
-}
-
-type MeshExtensionProvider_EnvoyExtAuthzGrpc struct {
-	// gRPC external authorization service.
-	EnvoyExtAuthzGrpc *ExternalAuthorizationProvider `protobuf:"bytes,3,opt,name=envoy_ext_authz_grpc,json=envoyExtAuthzGrpc,proto3,oneof"`
-}
-
-func (*MeshExtensionProvider_EnvoyExtAuthzHttp) isMeshExtensionProvider_Provider() {}
-
-func (*MeshExtensionProvider_EnvoyExtAuthzGrpc) isMeshExtensionProvider_Provider() {}
-
-type ExternalAuthorizationProvider struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Kubernetes service host or DNS name.
-	Service string `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
-	// Service port.
-	Port uint32 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
-	// HTTP path prefix prepended to authorization checks.
-	PathPrefix string `protobuf:"bytes,3,opt,name=path_prefix,json=pathPrefix,proto3" json:"path_prefix,omitempty"`
-	// Request headers sent to the authorization service.
-	IncludeRequestHeadersInCheck []string `protobuf:"bytes,4,rep,name=include_request_headers_in_check,json=includeRequestHeadersInCheck,proto3" json:"include_request_headers_in_check,omitempty"`
-	// Authorization response headers forwarded to the upstream workload.
-	HeadersToUpstreamOnAllow []string `protobuf:"bytes,5,rep,name=headers_to_upstream_on_allow,json=headersToUpstreamOnAllow,proto3" json:"headers_to_upstream_on_allow,omitempty"`
-	// Authorization response headers forwarded to the downstream client on deny.
-	HeadersToDownstreamOnDeny []string `protobuf:"bytes,6,rep,name=headers_to_downstream_on_deny,json=headersToDownstreamOnDeny,proto3" json:"headers_to_downstream_on_deny,omitempty"`
-	// Authorization check timeout.
-	Timeout *durationpb.Duration `protobuf:"bytes,7,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	// Permit requests when the authorization service is unavailable.
-	FailOpen      bool `protobuf:"varint,8,opt,name=fail_open,json=failOpen,proto3" json:"fail_open,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ExternalAuthorizationProvider) Reset() {
-	*x = ExternalAuthorizationProvider{}
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ExternalAuthorizationProvider) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExternalAuthorizationProvider) ProtoMessage() {}
-
-func (x *ExternalAuthorizationProvider) ProtoReflect() protoreflect.Message {
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ExternalAuthorizationProvider.ProtoReflect.Descriptor instead.
-func (*ExternalAuthorizationProvider) Descriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ExternalAuthorizationProvider) GetService() string {
-	if x != nil {
-		return x.Service
-	}
-	return ""
-}
-
-func (x *ExternalAuthorizationProvider) GetPort() uint32 {
-	if x != nil {
-		return x.Port
-	}
-	return 0
-}
-
-func (x *ExternalAuthorizationProvider) GetPathPrefix() string {
-	if x != nil {
-		return x.PathPrefix
-	}
-	return ""
-}
-
-func (x *ExternalAuthorizationProvider) GetIncludeRequestHeadersInCheck() []string {
-	if x != nil {
-		return x.IncludeRequestHeadersInCheck
-	}
-	return nil
-}
-
-func (x *ExternalAuthorizationProvider) GetHeadersToUpstreamOnAllow() []string {
-	if x != nil {
-		return x.HeadersToUpstreamOnAllow
-	}
-	return nil
-}
-
-func (x *ExternalAuthorizationProvider) GetHeadersToDownstreamOnDeny() []string {
-	if x != nil {
-		return x.HeadersToDownstreamOnDeny
-	}
-	return nil
-}
-
-func (x *ExternalAuthorizationProvider) GetTimeout() *durationpb.Duration {
-	if x != nil {
-		return x.Timeout
-	}
-	return nil
-}
-
-func (x *ExternalAuthorizationProvider) GetFailOpen() bool {
-	if x != nil {
-		return x.FailOpen
-	}
-	return false
 }
 
 type LabelSelector struct {
@@ -485,7 +169,7 @@ type LabelSelector struct {
 
 func (x *LabelSelector) Reset() {
 	*x = LabelSelector{}
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[4]
+	mi := &file_config_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -497,7 +181,7 @@ func (x *LabelSelector) String() string {
 func (*LabelSelector) ProtoMessage() {}
 
 func (x *LabelSelector) ProtoReflect() protoreflect.Message {
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[4]
+	mi := &file_config_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -510,7 +194,7 @@ func (x *LabelSelector) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LabelSelector.ProtoReflect.Descriptor instead.
 func (*LabelSelector) Descriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{4}
+	return file_config_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *LabelSelector) GetMatchLabels() map[string]string {
@@ -541,7 +225,7 @@ type LabelSelectorRequirement struct {
 
 func (x *LabelSelectorRequirement) Reset() {
 	*x = LabelSelectorRequirement{}
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[5]
+	mi := &file_config_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -553,7 +237,7 @@ func (x *LabelSelectorRequirement) String() string {
 func (*LabelSelectorRequirement) ProtoMessage() {}
 
 func (x *LabelSelectorRequirement) ProtoReflect() protoreflect.Message {
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[5]
+	mi := &file_config_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -566,7 +250,7 @@ func (x *LabelSelectorRequirement) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LabelSelectorRequirement.ProtoReflect.Descriptor instead.
 func (*LabelSelectorRequirement) Descriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{5}
+	return file_config_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *LabelSelectorRequirement) GetKey() string {
@@ -599,7 +283,7 @@ type ConfigSource struct {
 
 func (x *ConfigSource) Reset() {
 	*x = ConfigSource{}
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[6]
+	mi := &file_config_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -611,7 +295,7 @@ func (x *ConfigSource) String() string {
 func (*ConfigSource) ProtoMessage() {}
 
 func (x *ConfigSource) ProtoReflect() protoreflect.Message {
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[6]
+	mi := &file_config_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -624,7 +308,7 @@ func (x *ConfigSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigSource.ProtoReflect.Descriptor instead.
 func (*ConfigSource) Descriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{6}
+	return file_config_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ConfigSource) GetAddress() string {
@@ -644,7 +328,7 @@ type Certificate struct {
 
 func (x *Certificate) Reset() {
 	*x = Certificate{}
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[7]
+	mi := &file_config_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -656,7 +340,7 @@ func (x *Certificate) String() string {
 func (*Certificate) ProtoMessage() {}
 
 func (x *Certificate) ProtoReflect() protoreflect.Message {
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[7]
+	mi := &file_config_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -669,7 +353,7 @@ func (x *Certificate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Certificate.ProtoReflect.Descriptor instead.
 func (*Certificate) Descriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{7}
+	return file_config_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Certificate) GetSecretName() string {
@@ -701,7 +385,7 @@ type MeshConfig_CertificateData struct {
 
 func (x *MeshConfig_CertificateData) Reset() {
 	*x = MeshConfig_CertificateData{}
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[8]
+	mi := &file_config_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -713,7 +397,7 @@ func (x *MeshConfig_CertificateData) String() string {
 func (*MeshConfig_CertificateData) ProtoMessage() {}
 
 func (x *MeshConfig_CertificateData) ProtoReflect() protoreflect.Message {
-	mi := &file_mesh_v1alpha1_config_proto_msgTypes[8]
+	mi := &file_config_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -726,7 +410,7 @@ func (x *MeshConfig_CertificateData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MeshConfig_CertificateData.ProtoReflect.Descriptor instead.
 func (*MeshConfig_CertificateData) Descriptor() ([]byte, []int) {
-	return file_mesh_v1alpha1_config_proto_rawDescGZIP(), []int{0, 0}
+	return file_config_proto_rawDescGZIP(), []int{0, 0}
 }
 
 func (x *MeshConfig_CertificateData) GetCertificateData() isMeshConfig_CertificateData_CertificateData {
@@ -784,11 +468,11 @@ func (*MeshConfig_CertificateData_Pem) isMeshConfig_CertificateData_CertificateD
 
 func (*MeshConfig_CertificateData_SpiffeBundleUrl) isMeshConfig_CertificateData_CertificateData() {}
 
-var File_mesh_v1alpha1_config_proto protoreflect.FileDescriptor
+var File_config_proto protoreflect.FileDescriptor
 
-const file_mesh_v1alpha1_config_proto_rawDesc = "" +
+const file_config_proto_rawDesc = "" +
 	"\n" +
-	"\x1amesh/v1alpha1/config.proto\x12\x13dubbo.mesh.v1alpha1\x1a\x1egoogle/protobuf/duration.proto\x1a\vproxy.proto\"\xe0\a\n" +
+	"\fconfig.proto\x12\x13dubbo.mesh.v1alpha1\x1a\x1egoogle/protobuf/duration.proto\x1a\vproxy.proto\"\xc7\x06\n" +
 	"\n" +
 	"MeshConfig\x12B\n" +
 	"\x0fconnect_timeout\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x0econnectTimeout\x12G\n" +
@@ -801,38 +485,14 @@ const file_mesh_v1alpha1_config_proto_rawDesc = "" +
 	"\x0eroot_namespace\x18\n" +
 	" \x01(\tR\rrootNamespace\x12C\n" +
 	"\x10dns_refresh_rate\x18\v \x01(\v2\x19.google.protobuf.DurationR\x0ednsRefreshRate\x12H\n" +
-	"\fcertificates\x18\f \x03(\v2 .dubbo.mesh.v1alpha1.CertificateB\x02\x18\x01R\fcertificates\x12:\n" +
-	"\tmesh_mtls\x18\x10 \x01(\v2\x1d.dubbo.mesh.v1alpha1.MeshMTLSR\bmeshMtls\x12[\n" +
-	"\x13extension_providers\x18\x11 \x03(\v2*.dubbo.mesh.v1alpha1.MeshExtensionProviderR\x12extensionProviders\x1a\xaf\x01\n" +
+	"\fcertificates\x18\f \x03(\v2 .dubbo.mesh.v1alpha1.CertificateB\x02\x18\x01R\fcertificates\x1a\xaf\x01\n" +
 	"\x0fCertificateData\x12\x12\n" +
 	"\x03pem\x18\x01 \x01(\tH\x00R\x03pem\x12,\n" +
 	"\x11spiffe_bundle_url\x18\x02 \x01(\tH\x00R\x0fspiffeBundleUrl\x12!\n" +
 	"\fcert_signers\x18\x03 \x03(\tR\vcertSigners\x12#\n" +
 	"\rtrust_domains\x18\x04 \x03(\tR\ftrustDomainsB\x12\n" +
 	"\x10certificate_dataJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
-	"J\x04\b\r\x10\x10\"\x9e\x01\n" +
-	"\bMeshMTLS\x12[\n" +
-	"\x14min_protocol_version\x18\x01 \x01(\x0e2).dubbo.mesh.v1alpha1.MeshMTLS.TLSProtocolR\x12minProtocolVersion\"5\n" +
-	"\vTLSProtocol\x12\f\n" +
-	"\bTLS_AUTO\x10\x00\x12\v\n" +
-	"\aTLSV1_2\x10\x01\x12\v\n" +
-	"\aTLSV1_3\x10\x02\"\x85\x02\n" +
-	"\x15MeshExtensionProvider\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12e\n" +
-	"\x14envoy_ext_authz_http\x18\x02 \x01(\v22.dubbo.mesh.v1alpha1.ExternalAuthorizationProviderH\x00R\x11envoyExtAuthzHttp\x12e\n" +
-	"\x14envoy_ext_authz_grpc\x18\x03 \x01(\v22.dubbo.mesh.v1alpha1.ExternalAuthorizationProviderH\x00R\x11envoyExtAuthzGrpcB\n" +
-	"\n" +
-	"\bprovider\"\x8a\x03\n" +
-	"\x1dExternalAuthorizationProvider\x12\x18\n" +
-	"\aservice\x18\x01 \x01(\tR\aservice\x12\x12\n" +
-	"\x04port\x18\x02 \x01(\rR\x04port\x12\x1f\n" +
-	"\vpath_prefix\x18\x03 \x01(\tR\n" +
-	"pathPrefix\x12F\n" +
-	" include_request_headers_in_check\x18\x04 \x03(\tR\x1cincludeRequestHeadersInCheck\x12>\n" +
-	"\x1cheaders_to_upstream_on_allow\x18\x05 \x03(\tR\x18headersToUpstreamOnAllow\x12@\n" +
-	"\x1dheaders_to_downstream_on_deny\x18\x06 \x03(\tR\x19headersToDownstreamOnDeny\x123\n" +
-	"\atimeout\x18\a \x01(\v2\x19.google.protobuf.DurationR\atimeout\x12\x1b\n" +
-	"\tfail_open\x18\b \x01(\bR\bfailOpen\"\x81\x02\n" +
+	"J\x04\b\r\x10\x10\"\x81\x02\n" +
 	"\rLabelSelector\x12U\n" +
 	"\vmatchLabels\x18\x01 \x03(\v23.dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntryR\vmatchLabels\x12Y\n" +
 	"\x10matchExpressions\x18\x02 \x03(\v2-.dubbo.mesh.v1alpha1.LabelSelectorRequirementR\x10matchExpressions\x1a>\n" +
@@ -851,67 +511,52 @@ const file_mesh_v1alpha1_config_proto_rawDesc = "" +
 	"\tdns_names\x18\x02 \x03(\tR\bdnsNamesB\x14Z\x12/api/mesh/v1alpha1b\x06proto3"
 
 var (
-	file_mesh_v1alpha1_config_proto_rawDescOnce sync.Once
-	file_mesh_v1alpha1_config_proto_rawDescData []byte
+	file_config_proto_rawDescOnce sync.Once
+	file_config_proto_rawDescData []byte
 )
 
-func file_mesh_v1alpha1_config_proto_rawDescGZIP() []byte {
-	file_mesh_v1alpha1_config_proto_rawDescOnce.Do(func() {
-		file_mesh_v1alpha1_config_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_mesh_v1alpha1_config_proto_rawDesc), len(file_mesh_v1alpha1_config_proto_rawDesc)))
+func file_config_proto_rawDescGZIP() []byte {
+	file_config_proto_rawDescOnce.Do(func() {
+		file_config_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_config_proto_rawDesc), len(file_config_proto_rawDesc)))
 	})
-	return file_mesh_v1alpha1_config_proto_rawDescData
+	return file_config_proto_rawDescData
 }
 
-var file_mesh_v1alpha1_config_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_mesh_v1alpha1_config_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
-var file_mesh_v1alpha1_config_proto_goTypes = []any{
-	(MeshMTLS_TLSProtocol)(0),             // 0: dubbo.mesh.v1alpha1.MeshMTLS.TLSProtocol
-	(*MeshConfig)(nil),                    // 1: dubbo.mesh.v1alpha1.MeshConfig
-	(*MeshMTLS)(nil),                      // 2: dubbo.mesh.v1alpha1.MeshMTLS
-	(*MeshExtensionProvider)(nil),         // 3: dubbo.mesh.v1alpha1.MeshExtensionProvider
-	(*ExternalAuthorizationProvider)(nil), // 4: dubbo.mesh.v1alpha1.ExternalAuthorizationProvider
-	(*LabelSelector)(nil),                 // 5: dubbo.mesh.v1alpha1.LabelSelector
-	(*LabelSelectorRequirement)(nil),      // 6: dubbo.mesh.v1alpha1.LabelSelectorRequirement
-	(*ConfigSource)(nil),                  // 7: dubbo.mesh.v1alpha1.ConfigSource
-	(*Certificate)(nil),                   // 8: dubbo.mesh.v1alpha1.Certificate
-	(*MeshConfig_CertificateData)(nil),    // 9: dubbo.mesh.v1alpha1.MeshConfig.CertificateData
-	nil,                                   // 10: dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
-	(*durationpb.Duration)(nil),           // 11: google.protobuf.Duration
-	(*ProxyConfig)(nil),                   // 12: dubbo.mesh.v1alpha1.ProxyConfig
+var file_config_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_config_proto_goTypes = []any{
+	(*MeshConfig)(nil),                 // 0: dubbo.mesh.v1alpha1.MeshConfig
+	(*LabelSelector)(nil),              // 1: dubbo.mesh.v1alpha1.LabelSelector
+	(*LabelSelectorRequirement)(nil),   // 2: dubbo.mesh.v1alpha1.LabelSelectorRequirement
+	(*ConfigSource)(nil),               // 3: dubbo.mesh.v1alpha1.ConfigSource
+	(*Certificate)(nil),                // 4: dubbo.mesh.v1alpha1.Certificate
+	(*MeshConfig_CertificateData)(nil), // 5: dubbo.mesh.v1alpha1.MeshConfig.CertificateData
+	nil,                                // 6: dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
+	(*durationpb.Duration)(nil),        // 7: google.protobuf.Duration
+	(*ProxyConfig)(nil),                // 8: dubbo.mesh.v1alpha1.ProxyConfig
 }
-var file_mesh_v1alpha1_config_proto_depIdxs = []int32{
-	11, // 0: dubbo.mesh.v1alpha1.MeshConfig.connect_timeout:type_name -> google.protobuf.Duration
-	12, // 1: dubbo.mesh.v1alpha1.MeshConfig.default_config:type_name -> dubbo.mesh.v1alpha1.ProxyConfig
-	7,  // 2: dubbo.mesh.v1alpha1.MeshConfig.config_sources:type_name -> dubbo.mesh.v1alpha1.ConfigSource
-	9,  // 3: dubbo.mesh.v1alpha1.MeshConfig.ca_certificates:type_name -> dubbo.mesh.v1alpha1.MeshConfig.CertificateData
-	11, // 4: dubbo.mesh.v1alpha1.MeshConfig.dns_refresh_rate:type_name -> google.protobuf.Duration
-	8,  // 5: dubbo.mesh.v1alpha1.MeshConfig.certificates:type_name -> dubbo.mesh.v1alpha1.Certificate
-	2,  // 6: dubbo.mesh.v1alpha1.MeshConfig.mesh_mtls:type_name -> dubbo.mesh.v1alpha1.MeshMTLS
-	3,  // 7: dubbo.mesh.v1alpha1.MeshConfig.extension_providers:type_name -> dubbo.mesh.v1alpha1.MeshExtensionProvider
-	0,  // 8: dubbo.mesh.v1alpha1.MeshMTLS.min_protocol_version:type_name -> dubbo.mesh.v1alpha1.MeshMTLS.TLSProtocol
-	4,  // 9: dubbo.mesh.v1alpha1.MeshExtensionProvider.envoy_ext_authz_http:type_name -> dubbo.mesh.v1alpha1.ExternalAuthorizationProvider
-	4,  // 10: dubbo.mesh.v1alpha1.MeshExtensionProvider.envoy_ext_authz_grpc:type_name -> dubbo.mesh.v1alpha1.ExternalAuthorizationProvider
-	11, // 11: dubbo.mesh.v1alpha1.ExternalAuthorizationProvider.timeout:type_name -> google.protobuf.Duration
-	10, // 12: dubbo.mesh.v1alpha1.LabelSelector.matchLabels:type_name -> dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
-	6,  // 13: dubbo.mesh.v1alpha1.LabelSelector.matchExpressions:type_name -> dubbo.mesh.v1alpha1.LabelSelectorRequirement
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+var file_config_proto_depIdxs = []int32{
+	7, // 0: dubbo.mesh.v1alpha1.MeshConfig.connect_timeout:type_name -> google.protobuf.Duration
+	8, // 1: dubbo.mesh.v1alpha1.MeshConfig.default_config:type_name -> dubbo.mesh.v1alpha1.ProxyConfig
+	3, // 2: dubbo.mesh.v1alpha1.MeshConfig.config_sources:type_name -> dubbo.mesh.v1alpha1.ConfigSource
+	5, // 3: dubbo.mesh.v1alpha1.MeshConfig.ca_certificates:type_name -> dubbo.mesh.v1alpha1.MeshConfig.CertificateData
+	7, // 4: dubbo.mesh.v1alpha1.MeshConfig.dns_refresh_rate:type_name -> google.protobuf.Duration
+	4, // 5: dubbo.mesh.v1alpha1.MeshConfig.certificates:type_name -> dubbo.mesh.v1alpha1.Certificate
+	6, // 6: dubbo.mesh.v1alpha1.LabelSelector.matchLabels:type_name -> dubbo.mesh.v1alpha1.LabelSelector.MatchLabelsEntry
+	2, // 7: dubbo.mesh.v1alpha1.LabelSelector.matchExpressions:type_name -> dubbo.mesh.v1alpha1.LabelSelectorRequirement
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
-func init() { file_mesh_v1alpha1_config_proto_init() }
-func file_mesh_v1alpha1_config_proto_init() {
-	if File_mesh_v1alpha1_config_proto != nil {
+func init() { file_config_proto_init() }
+func file_config_proto_init() {
+	if File_config_proto != nil {
 		return
 	}
 	file_proxy_proto_init()
-	file_mesh_v1alpha1_config_proto_msgTypes[2].OneofWrappers = []any{
-		(*MeshExtensionProvider_EnvoyExtAuthzHttp)(nil),
-		(*MeshExtensionProvider_EnvoyExtAuthzGrpc)(nil),
-	}
-	file_mesh_v1alpha1_config_proto_msgTypes[8].OneofWrappers = []any{
+	file_config_proto_msgTypes[5].OneofWrappers = []any{
 		(*MeshConfig_CertificateData_Pem)(nil),
 		(*MeshConfig_CertificateData_SpiffeBundleUrl)(nil),
 	}
@@ -919,18 +564,17 @@ func file_mesh_v1alpha1_config_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_mesh_v1alpha1_config_proto_rawDesc), len(file_mesh_v1alpha1_config_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   10,
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_config_proto_rawDesc), len(file_config_proto_rawDesc)),
+			NumEnums:      0,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_mesh_v1alpha1_config_proto_goTypes,
-		DependencyIndexes: file_mesh_v1alpha1_config_proto_depIdxs,
-		EnumInfos:         file_mesh_v1alpha1_config_proto_enumTypes,
-		MessageInfos:      file_mesh_v1alpha1_config_proto_msgTypes,
+		GoTypes:           file_config_proto_goTypes,
+		DependencyIndexes: file_config_proto_depIdxs,
+		MessageInfos:      file_config_proto_msgTypes,
 	}.Build()
-	File_mesh_v1alpha1_config_proto = out.File
-	file_mesh_v1alpha1_config_proto_goTypes = nil
-	file_mesh_v1alpha1_config_proto_depIdxs = nil
+	File_config_proto = out.File
+	file_config_proto_goTypes = nil
+	file_config_proto_depIdxs = nil
 }

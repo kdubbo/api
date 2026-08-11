@@ -39,17 +39,6 @@ func (this *JWTHeader) UnmarshalJSON(b []byte) error {
 	return RequestAuthenticationUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
-// MarshalJSON is a custom marshaler for ClaimToHeader
-func (this *ClaimToHeader) MarshalJSON() ([]byte, error) {
-	str, err := RequestAuthenticationMarshaler.MarshalToString(this)
-	return []byte(str), err
-}
-
-// UnmarshalJSON is a custom unmarshaler for ClaimToHeader
-func (this *ClaimToHeader) UnmarshalJSON(b []byte) error {
-	return RequestAuthenticationUnmarshaler.Unmarshal(bytes.NewReader(b), this)
-}
-
 var (
 	RequestAuthenticationMarshaler   = &jsonpb.Marshaler{}
 	RequestAuthenticationUnmarshaler = &jsonpb.Unmarshaler{AllowUnknownFields: true}
