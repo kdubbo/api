@@ -1626,10 +1626,13 @@ spec:
                             description: |-
                               REQUIRED.
 
-                              Valid Options: REQUEST_COUNT
+                              Valid Options: REQUEST_COUNT, REQUEST_DURATION, REQUEST_SIZE, RESPONSE_SIZE
                             enum:
                             - STANDARD_METRIC_UNSPECIFIED
                             - REQUEST_COUNT
+                            - REQUEST_DURATION
+                            - REQUEST_SIZE
+                            - RESPONSE_SIZE
                             type: string
                           scope:
                             description: |-

@@ -48,8 +48,14 @@ type StandardMetric int32
 
 const (
 	StandardMetric_STANDARD_METRIC_UNSPECIFIED StandardMetric = 0
-	// Number of completed RPC requests.
+	// Number of completed RPC requests. Type: COUNTER.
 	StandardMetric_REQUEST_COUNT StandardMetric = 1
+	// RPC duration in seconds. Type: DISTRIBUTION.
+	StandardMetric_REQUEST_DURATION StandardMetric = 2
+	// Total uncompressed request message bytes per RPC. Type: DISTRIBUTION.
+	StandardMetric_REQUEST_SIZE StandardMetric = 3
+	// Total uncompressed response message bytes per RPC. Type: DISTRIBUTION.
+	StandardMetric_RESPONSE_SIZE StandardMetric = 4
 )
 
 // Enum value maps for StandardMetric.
@@ -57,10 +63,16 @@ var (
 	StandardMetric_name = map[int32]string{
 		0: "STANDARD_METRIC_UNSPECIFIED",
 		1: "REQUEST_COUNT",
+		2: "REQUEST_DURATION",
+		3: "REQUEST_SIZE",
+		4: "RESPONSE_SIZE",
 	}
 	StandardMetric_value = map[string]int32{
 		"STANDARD_METRIC_UNSPECIFIED": 0,
 		"REQUEST_COUNT":               1,
+		"REQUEST_DURATION":            2,
+		"REQUEST_SIZE":                3,
+		"RESPONSE_SIZE":               4,
 	}
 )
 
@@ -720,10 +732,13 @@ const file_telemetry_v1alpha3_telemetry_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a/\n" +
 	"\x03Tag\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value*D\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value*\x7f\n" +
 	"\x0eStandardMetric\x12\x1f\n" +
 	"\x1bSTANDARD_METRIC_UNSPECIFIED\x10\x00\x12\x11\n" +
-	"\rREQUEST_COUNT\x10\x01*Z\n" +
+	"\rREQUEST_COUNT\x10\x01\x12\x14\n" +
+	"\x10REQUEST_DURATION\x10\x02\x12\x10\n" +
+	"\fREQUEST_SIZE\x10\x03\x12\x11\n" +
+	"\rRESPONSE_SIZE\x10\x04*Z\n" +
 	"\vMetricScope\x12\x1c\n" +
 	"\x18METRIC_SCOPE_UNSPECIFIED\x10\x00\x12\n" +
 	"\n" +

@@ -40,3 +40,34 @@ func TestMetricRuleJSON(t *testing.T) {
 		t.Fatalf("tag action = %s, want REMOVE", got)
 	}
 }
+
+func TestStandardMetricJSONNames(t *testing.T) {
+	tests := []struct {
+		name string
+		want StandardMetric
+	}{
+		{name: "REQUEST_COUNT", want: StandardMetric_REQUEST_COUNT},
+		{name: "REQUEST_DURATION", want: StandardMetric_REQUEST_DURATION},
+		{name: "REQUEST_SIZE", want: StandardMetric_REQUEST_SIZE},
+		{name: "RESPONSE_SIZE", want: StandardMetric_RESPONSE_SIZE},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var telemetry Telemetry
+			err := protojson.Unmarshal([]byte(`{
+				"metrics": [{
+					"rules": [{
+						"metric": "`+tt.name+`",
+						"scope": "CLIENT_AND_SERVER"
+					}]
+				}]
+			}`), &telemetry)
+			if err != nil {
+				t.Fatalf("unmarshal standard metric: %v", err)
+			}
+			if got := telemetry.GetMetrics()[0].GetRules()[0].GetMetric(); got != tt.want {
+				t.Fatalf("metric = %s, want %s", got, tt.want)
+			}
+		})
+	}
+}

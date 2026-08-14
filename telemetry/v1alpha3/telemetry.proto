@@ -96,8 +96,17 @@ message Metrics {
 enum StandardMetric {
   STANDARD_METRIC_UNSPECIFIED = 0;
 
-  // Number of completed RPC requests.
+  // Number of completed RPC requests. Type: COUNTER.
   REQUEST_COUNT = 1;
+
+  // RPC duration in seconds. Type: DISTRIBUTION.
+  REQUEST_DURATION = 2;
+
+  // Total uncompressed request message bytes per RPC. Type: DISTRIBUTION.
+  REQUEST_SIZE = 3;
+
+  // Total uncompressed response message bytes per RPC. Type: DISTRIBUTION.
+  RESPONSE_SIZE = 4;
 }
 
 // MetricScope selects which side of an Inherent RPC applies a rule.
