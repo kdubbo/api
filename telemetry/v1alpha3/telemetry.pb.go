@@ -373,7 +373,8 @@ type MetricRule struct {
 	Metric StandardMetric `protobuf:"varint,1,opt,name=metric,proto3,enum=dubbo.telemetry.v1alpha3.StandardMetric" json:"metric,omitempty"`
 	// REQUIRED. Inherent reporter side selected by this rule.
 	Scope MetricScope `protobuf:"varint,2,opt,name=scope,proto3,enum=dubbo.telemetry.v1alpha3.MetricScope" json:"scope,omitempty"`
-	// Tag overrides keyed by metric tag name.
+	// Tag overrides keyed by standard label name. Supported labels are
+	// `reporter`, `grpc_service`, `grpc_method`, and `grpc_response_status`.
 	Tags          map[string]*TagOverride `protobuf:"bytes,3,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

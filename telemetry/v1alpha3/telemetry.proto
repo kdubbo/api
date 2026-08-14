@@ -125,7 +125,8 @@ message MetricRule {
   // REQUIRED. Inherent reporter side selected by this rule.
   MetricScope scope = 2;
 
-  // Tag overrides keyed by metric tag name.
+  // Tag overrides keyed by standard label name. Supported labels are
+  // `reporter`, `grpc_service`, `grpc_method`, and `grpc_response_status`.
   map<string, TagOverride> tags = 3;
 }
 

@@ -1658,7 +1658,7 @@ spec:
                                   - REMOVE
                                   type: string
                               type: object
-                            description: Tag overrides keyed by metric tag name.
+                            description: Tag overrides keyed by standard label name.
                             type: object
                         type: object
                       type: array
