@@ -203,6 +203,59 @@ func (TagOverride_Action) EnumDescriptor() ([]byte, []int) {
 	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{3, 0}
 }
 
+// Mode selects which side of an Inherent RPC emits an access log.
+type Logging_Match_Mode int32
+
+const (
+	Logging_Match_MODE_UNSPECIFIED  Logging_Match_Mode = 0
+	Logging_Match_CLIENT            Logging_Match_Mode = 1
+	Logging_Match_SERVER            Logging_Match_Mode = 2
+	Logging_Match_CLIENT_AND_SERVER Logging_Match_Mode = 3
+)
+
+// Enum value maps for Logging_Match_Mode.
+var (
+	Logging_Match_Mode_name = map[int32]string{
+		0: "MODE_UNSPECIFIED",
+		1: "CLIENT",
+		2: "SERVER",
+		3: "CLIENT_AND_SERVER",
+	}
+	Logging_Match_Mode_value = map[string]int32{
+		"MODE_UNSPECIFIED":  0,
+		"CLIENT":            1,
+		"SERVER":            2,
+		"CLIENT_AND_SERVER": 3,
+	}
+)
+
+func (x Logging_Match_Mode) Enum() *Logging_Match_Mode {
+	p := new(Logging_Match_Mode)
+	*p = x
+	return p
+}
+
+func (x Logging_Match_Mode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Logging_Match_Mode) Descriptor() protoreflect.EnumDescriptor {
+	return file_telemetry_v1alpha3_telemetry_proto_enumTypes[3].Descriptor()
+}
+
+func (Logging_Match_Mode) Type() protoreflect.EnumType {
+	return &file_telemetry_v1alpha3_telemetry_proto_enumTypes[3]
+}
+
+func (x Logging_Match_Mode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Logging_Match_Mode.Descriptor instead.
+func (Logging_Match_Mode) EnumDescriptor() ([]byte, []int) {
+	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{4, 1, 0}
+}
+
 // Telemetry defines how telemetry is generated for workloads within a mesh.
 //
 // Telemetry is resolved from least to most specific. Fields explicitly set at
@@ -244,7 +297,9 @@ type Telemetry struct {
 	// Tracing configures tracing behavior for selected workloads.
 	Tracing []*Tracing `protobuf:"bytes,2,rep,name=tracing,proto3" json:"tracing,omitempty"`
 	// Metrics configures metric generation for selected workloads.
-	Metrics       []*Metrics `protobuf:"bytes,3,rep,name=metrics,proto3" json:"metrics,omitempty"`
+	Metrics []*Metrics `protobuf:"bytes,3,rep,name=metrics,proto3" json:"metrics,omitempty"`
+	// Logging configures access logging for selected workloads.
+	Logging       []*Logging `protobuf:"bytes,4,rep,name=logging,proto3" json:"logging,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -296,6 +351,13 @@ func (x *Telemetry) GetTracing() []*Tracing {
 func (x *Telemetry) GetMetrics() []*Metrics {
 	if x != nil {
 		return x.Metrics
+	}
+	return nil
+}
+
+func (x *Telemetry) GetLogging() []*Logging {
+	if x != nil {
+		return x.Logging
 	}
 	return nil
 }
@@ -477,6 +539,89 @@ func (x *TagOverride) GetAction() TagOverride_Action {
 	return TagOverride_ACTION_UNSPECIFIED
 }
 
+// Logging configures access log generation for selected workloads.
+type Logging struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Providers used for access log reporting.
+	Providers []*Logging_LoggingProvider `protobuf:"bytes,1,rep,name=providers,proto3" json:"providers,omitempty"`
+	// Disables access logging for selected workloads.
+	Disabled *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	// Restricts access logs to a reporter side. When omitted, both client and
+	// server access logs are selected.
+	Match *Logging_Match `protobuf:"bytes,3,opt,name=match,proto3" json:"match,omitempty"`
+	// Filters access logs using a CEL expression.
+	Filter *Logging_Filter `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
+	// Static custom attributes added to generated access logs.
+	Tags          []*Logging_Tag `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Logging) Reset() {
+	*x = Logging{}
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Logging) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Logging) ProtoMessage() {}
+
+func (x *Logging) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Logging.ProtoReflect.Descriptor instead.
+func (*Logging) Descriptor() ([]byte, []int) {
+	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Logging) GetProviders() []*Logging_LoggingProvider {
+	if x != nil {
+		return x.Providers
+	}
+	return nil
+}
+
+func (x *Logging) GetDisabled() *wrapperspb.BoolValue {
+	if x != nil {
+		return x.Disabled
+	}
+	return nil
+}
+
+func (x *Logging) GetMatch() *Logging_Match {
+	if x != nil {
+		return x.Match
+	}
+	return nil
+}
+
+func (x *Logging) GetFilter() *Logging_Filter {
+	if x != nil {
+		return x.Filter
+	}
+	return nil
+}
+
+func (x *Logging) GetTags() []*Logging_Tag {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
 // Tracing configures tracing behavior for selected workloads.
 type Tracing struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -494,7 +639,7 @@ type Tracing struct {
 
 func (x *Tracing) Reset() {
 	*x = Tracing{}
-	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[4]
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -506,7 +651,7 @@ func (x *Tracing) String() string {
 func (*Tracing) ProtoMessage() {}
 
 func (x *Tracing) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[4]
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -519,7 +664,7 @@ func (x *Tracing) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Tracing.ProtoReflect.Descriptor instead.
 func (*Tracing) Descriptor() ([]byte, []int) {
-	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{4}
+	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Tracing) GetProviders() []*Tracing_TracingProvider {
@@ -561,7 +706,7 @@ type Metrics_MetricsProvider struct {
 
 func (x *Metrics_MetricsProvider) Reset() {
 	*x = Metrics_MetricsProvider{}
-	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[5]
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -573,7 +718,7 @@ func (x *Metrics_MetricsProvider) String() string {
 func (*Metrics_MetricsProvider) ProtoMessage() {}
 
 func (x *Metrics_MetricsProvider) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[5]
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -596,6 +741,198 @@ func (x *Metrics_MetricsProvider) GetName() string {
 	return ""
 }
 
+type Logging_LoggingProvider struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// REQUIRED. Name of the access log provider.
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Logging_LoggingProvider) Reset() {
+	*x = Logging_LoggingProvider{}
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Logging_LoggingProvider) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Logging_LoggingProvider) ProtoMessage() {}
+
+func (x *Logging_LoggingProvider) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Logging_LoggingProvider.ProtoReflect.Descriptor instead.
+func (*Logging_LoggingProvider) Descriptor() ([]byte, []int) {
+	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{4, 0}
+}
+
+func (x *Logging_LoggingProvider) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+// Match restricts access logs to one side of an Inherent RPC.
+type Logging_Match struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Reporter side selected for access logging.
+	Mode          Logging_Match_Mode `protobuf:"varint,1,opt,name=mode,proto3,enum=dubbo.telemetry.v1alpha3.Logging_Match_Mode" json:"mode,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Logging_Match) Reset() {
+	*x = Logging_Match{}
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Logging_Match) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Logging_Match) ProtoMessage() {}
+
+func (x *Logging_Match) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Logging_Match.ProtoReflect.Descriptor instead.
+func (*Logging_Match) Descriptor() ([]byte, []int) {
+	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{4, 1}
+}
+
+func (x *Logging_Match) GetMode() Logging_Match_Mode {
+	if x != nil {
+		return x.Mode
+	}
+	return Logging_Match_MODE_UNSPECIFIED
+}
+
+// Filter selects access logs using a CEL expression.
+type Logging_Filter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// REQUIRED. CEL expression evaluated against access log attributes.
+	Expression    string `protobuf:"bytes,1,opt,name=expression,proto3" json:"expression,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Logging_Filter) Reset() {
+	*x = Logging_Filter{}
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Logging_Filter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Logging_Filter) ProtoMessage() {}
+
+func (x *Logging_Filter) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Logging_Filter.ProtoReflect.Descriptor instead.
+func (*Logging_Filter) Descriptor() ([]byte, []int) {
+	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{4, 2}
+}
+
+func (x *Logging_Filter) GetExpression() string {
+	if x != nil {
+		return x.Expression
+	}
+	return ""
+}
+
+// Tag adds a static custom attribute to generated access logs.
+type Logging_Tag struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// REQUIRED. Access log attribute name.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Static access log attribute value.
+	Value         string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Logging_Tag) Reset() {
+	*x = Logging_Tag{}
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Logging_Tag) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Logging_Tag) ProtoMessage() {}
+
+func (x *Logging_Tag) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Logging_Tag.ProtoReflect.Descriptor instead.
+func (*Logging_Tag) Descriptor() ([]byte, []int) {
+	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{4, 3}
+}
+
+func (x *Logging_Tag) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Logging_Tag) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 type Tracing_TracingProvider struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// REQUIRED. Name of the tracing provider.
@@ -606,7 +943,7 @@ type Tracing_TracingProvider struct {
 
 func (x *Tracing_TracingProvider) Reset() {
 	*x = Tracing_TracingProvider{}
-	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[7]
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -618,7 +955,7 @@ func (x *Tracing_TracingProvider) String() string {
 func (*Tracing_TracingProvider) ProtoMessage() {}
 
 func (x *Tracing_TracingProvider) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[7]
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -631,7 +968,7 @@ func (x *Tracing_TracingProvider) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Tracing_TracingProvider.ProtoReflect.Descriptor instead.
 func (*Tracing_TracingProvider) Descriptor() ([]byte, []int) {
-	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{4, 0}
+	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *Tracing_TracingProvider) GetName() string {
@@ -653,7 +990,7 @@ type Tracing_Tag struct {
 
 func (x *Tracing_Tag) Reset() {
 	*x = Tracing_Tag{}
-	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[8]
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -665,7 +1002,7 @@ func (x *Tracing_Tag) String() string {
 func (*Tracing_Tag) ProtoMessage() {}
 
 func (x *Tracing_Tag) ProtoReflect() protoreflect.Message {
-	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[8]
+	mi := &file_telemetry_v1alpha3_telemetry_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -678,7 +1015,7 @@ func (x *Tracing_Tag) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Tracing_Tag.ProtoReflect.Descriptor instead.
 func (*Tracing_Tag) Descriptor() ([]byte, []int) {
-	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{4, 1}
+	return file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP(), []int{5, 1}
 }
 
 func (x *Tracing_Tag) GetName() string {
@@ -699,11 +1036,12 @@ var File_telemetry_v1alpha3_telemetry_proto protoreflect.FileDescriptor
 
 const file_telemetry_v1alpha3_telemetry_proto_rawDesc = "" +
 	"\n" +
-	"\"telemetry/v1alpha3/telemetry.proto\x12\x18dubbo.telemetry.v1alpha3\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1ctype/v1alpha3/selector.proto\"\xc8\x01\n" +
+	"\"telemetry/v1alpha3/telemetry.proto\x12\x18dubbo.telemetry.v1alpha3\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1ctype/v1alpha3/selector.proto\"\x85\x02\n" +
 	"\tTelemetry\x12A\n" +
 	"\bselector\x18\x01 \x01(\v2%.dubbo.type.v1alpha3.WorkloadSelectorR\bselector\x12;\n" +
 	"\atracing\x18\x02 \x03(\v2!.dubbo.telemetry.v1alpha3.TracingR\atracing\x12;\n" +
-	"\ametrics\x18\x03 \x03(\v2!.dubbo.telemetry.v1alpha3.MetricsR\ametrics\"\xf3\x01\n" +
+	"\ametrics\x18\x03 \x03(\v2!.dubbo.telemetry.v1alpha3.MetricsR\ametrics\x12;\n" +
+	"\alogging\x18\x04 \x03(\v2!.dubbo.telemetry.v1alpha3.LoggingR\alogging\"\xf3\x01\n" +
 	"\aMetrics\x12O\n" +
 	"\tproviders\x18\x01 \x03(\v21.dubbo.telemetry.v1alpha3.Metrics.MetricsProviderR\tproviders\x124\n" +
 	"\aenabled\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\aenabled\x12:\n" +
@@ -723,7 +1061,31 @@ const file_telemetry_v1alpha3_telemetry_proto_rawDesc = "" +
 	"\x06Action\x12\x16\n" +
 	"\x12ACTION_UNSPECIFIED\x10\x00\x12\n" +
 	"\n" +
-	"\x06REMOVE\x10\x01\"\x9b\x03\n" +
+	"\x06REMOVE\x10\x01\"\xe9\x04\n" +
+	"\aLogging\x12O\n" +
+	"\tproviders\x18\x01 \x03(\v21.dubbo.telemetry.v1alpha3.Logging.LoggingProviderR\tproviders\x126\n" +
+	"\bdisabled\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\bdisabled\x12=\n" +
+	"\x05match\x18\x03 \x01(\v2'.dubbo.telemetry.v1alpha3.Logging.MatchR\x05match\x12@\n" +
+	"\x06filter\x18\x04 \x01(\v2(.dubbo.telemetry.v1alpha3.Logging.FilterR\x06filter\x129\n" +
+	"\x04tags\x18\x05 \x03(\v2%.dubbo.telemetry.v1alpha3.Logging.TagR\x04tags\x1a%\n" +
+	"\x0fLoggingProvider\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a\x96\x01\n" +
+	"\x05Match\x12@\n" +
+	"\x04mode\x18\x01 \x01(\x0e2,.dubbo.telemetry.v1alpha3.Logging.Match.ModeR\x04mode\"K\n" +
+	"\x04Mode\x12\x14\n" +
+	"\x10MODE_UNSPECIFIED\x10\x00\x12\n" +
+	"\n" +
+	"\x06CLIENT\x10\x01\x12\n" +
+	"\n" +
+	"\x06SERVER\x10\x02\x12\x15\n" +
+	"\x11CLIENT_AND_SERVER\x10\x03\x1a(\n" +
+	"\x06Filter\x12\x1e\n" +
+	"\n" +
+	"expression\x18\x01 \x01(\tR\n" +
+	"expression\x1a/\n" +
+	"\x03Tag\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\x9b\x03\n" +
 	"\aTracing\x12O\n" +
 	"\tproviders\x18\x01 \x03(\v21.dubbo.telemetry.v1alpha3.Tracing.TracingProviderR\tproviders\x12Z\n" +
 	"\x1arandom_sampling_percentage\x18\x02 \x01(\v2\x1c.google.protobuf.DoubleValueR\x18randomSamplingPercentage\x12P\n" +
@@ -760,46 +1122,59 @@ func file_telemetry_v1alpha3_telemetry_proto_rawDescGZIP() []byte {
 	return file_telemetry_v1alpha3_telemetry_proto_rawDescData
 }
 
-var file_telemetry_v1alpha3_telemetry_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_telemetry_v1alpha3_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_telemetry_v1alpha3_telemetry_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_telemetry_v1alpha3_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_telemetry_v1alpha3_telemetry_proto_goTypes = []any{
 	(StandardMetric)(0),               // 0: dubbo.telemetry.v1alpha3.StandardMetric
 	(MetricScope)(0),                  // 1: dubbo.telemetry.v1alpha3.MetricScope
 	(TagOverride_Action)(0),           // 2: dubbo.telemetry.v1alpha3.TagOverride.Action
-	(*Telemetry)(nil),                 // 3: dubbo.telemetry.v1alpha3.Telemetry
-	(*Metrics)(nil),                   // 4: dubbo.telemetry.v1alpha3.Metrics
-	(*MetricRule)(nil),                // 5: dubbo.telemetry.v1alpha3.MetricRule
-	(*TagOverride)(nil),               // 6: dubbo.telemetry.v1alpha3.TagOverride
-	(*Tracing)(nil),                   // 7: dubbo.telemetry.v1alpha3.Tracing
-	(*Metrics_MetricsProvider)(nil),   // 8: dubbo.telemetry.v1alpha3.Metrics.MetricsProvider
-	nil,                               // 9: dubbo.telemetry.v1alpha3.MetricRule.TagsEntry
-	(*Tracing_TracingProvider)(nil),   // 10: dubbo.telemetry.v1alpha3.Tracing.TracingProvider
-	(*Tracing_Tag)(nil),               // 11: dubbo.telemetry.v1alpha3.Tracing.Tag
-	(*v1alpha3.WorkloadSelector)(nil), // 12: dubbo.type.v1alpha3.WorkloadSelector
-	(*wrapperspb.BoolValue)(nil),      // 13: google.protobuf.BoolValue
-	(*wrapperspb.DoubleValue)(nil),    // 14: google.protobuf.DoubleValue
+	(Logging_Match_Mode)(0),           // 3: dubbo.telemetry.v1alpha3.Logging.Match.Mode
+	(*Telemetry)(nil),                 // 4: dubbo.telemetry.v1alpha3.Telemetry
+	(*Metrics)(nil),                   // 5: dubbo.telemetry.v1alpha3.Metrics
+	(*MetricRule)(nil),                // 6: dubbo.telemetry.v1alpha3.MetricRule
+	(*TagOverride)(nil),               // 7: dubbo.telemetry.v1alpha3.TagOverride
+	(*Logging)(nil),                   // 8: dubbo.telemetry.v1alpha3.Logging
+	(*Tracing)(nil),                   // 9: dubbo.telemetry.v1alpha3.Tracing
+	(*Metrics_MetricsProvider)(nil),   // 10: dubbo.telemetry.v1alpha3.Metrics.MetricsProvider
+	nil,                               // 11: dubbo.telemetry.v1alpha3.MetricRule.TagsEntry
+	(*Logging_LoggingProvider)(nil),   // 12: dubbo.telemetry.v1alpha3.Logging.LoggingProvider
+	(*Logging_Match)(nil),             // 13: dubbo.telemetry.v1alpha3.Logging.Match
+	(*Logging_Filter)(nil),            // 14: dubbo.telemetry.v1alpha3.Logging.Filter
+	(*Logging_Tag)(nil),               // 15: dubbo.telemetry.v1alpha3.Logging.Tag
+	(*Tracing_TracingProvider)(nil),   // 16: dubbo.telemetry.v1alpha3.Tracing.TracingProvider
+	(*Tracing_Tag)(nil),               // 17: dubbo.telemetry.v1alpha3.Tracing.Tag
+	(*v1alpha3.WorkloadSelector)(nil), // 18: dubbo.type.v1alpha3.WorkloadSelector
+	(*wrapperspb.BoolValue)(nil),      // 19: google.protobuf.BoolValue
+	(*wrapperspb.DoubleValue)(nil),    // 20: google.protobuf.DoubleValue
 }
 var file_telemetry_v1alpha3_telemetry_proto_depIdxs = []int32{
-	12, // 0: dubbo.telemetry.v1alpha3.Telemetry.selector:type_name -> dubbo.type.v1alpha3.WorkloadSelector
-	7,  // 1: dubbo.telemetry.v1alpha3.Telemetry.tracing:type_name -> dubbo.telemetry.v1alpha3.Tracing
-	4,  // 2: dubbo.telemetry.v1alpha3.Telemetry.metrics:type_name -> dubbo.telemetry.v1alpha3.Metrics
-	8,  // 3: dubbo.telemetry.v1alpha3.Metrics.providers:type_name -> dubbo.telemetry.v1alpha3.Metrics.MetricsProvider
-	13, // 4: dubbo.telemetry.v1alpha3.Metrics.enabled:type_name -> google.protobuf.BoolValue
-	5,  // 5: dubbo.telemetry.v1alpha3.Metrics.rules:type_name -> dubbo.telemetry.v1alpha3.MetricRule
-	0,  // 6: dubbo.telemetry.v1alpha3.MetricRule.metric:type_name -> dubbo.telemetry.v1alpha3.StandardMetric
-	1,  // 7: dubbo.telemetry.v1alpha3.MetricRule.scope:type_name -> dubbo.telemetry.v1alpha3.MetricScope
-	9,  // 8: dubbo.telemetry.v1alpha3.MetricRule.tags:type_name -> dubbo.telemetry.v1alpha3.MetricRule.TagsEntry
-	2,  // 9: dubbo.telemetry.v1alpha3.TagOverride.action:type_name -> dubbo.telemetry.v1alpha3.TagOverride.Action
-	10, // 10: dubbo.telemetry.v1alpha3.Tracing.providers:type_name -> dubbo.telemetry.v1alpha3.Tracing.TracingProvider
-	14, // 11: dubbo.telemetry.v1alpha3.Tracing.random_sampling_percentage:type_name -> google.protobuf.DoubleValue
-	13, // 12: dubbo.telemetry.v1alpha3.Tracing.disable_span_reporting:type_name -> google.protobuf.BoolValue
-	11, // 13: dubbo.telemetry.v1alpha3.Tracing.tags:type_name -> dubbo.telemetry.v1alpha3.Tracing.Tag
-	6,  // 14: dubbo.telemetry.v1alpha3.MetricRule.TagsEntry.value:type_name -> dubbo.telemetry.v1alpha3.TagOverride
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	18, // 0: dubbo.telemetry.v1alpha3.Telemetry.selector:type_name -> dubbo.type.v1alpha3.WorkloadSelector
+	9,  // 1: dubbo.telemetry.v1alpha3.Telemetry.tracing:type_name -> dubbo.telemetry.v1alpha3.Tracing
+	5,  // 2: dubbo.telemetry.v1alpha3.Telemetry.metrics:type_name -> dubbo.telemetry.v1alpha3.Metrics
+	8,  // 3: dubbo.telemetry.v1alpha3.Telemetry.logging:type_name -> dubbo.telemetry.v1alpha3.Logging
+	10, // 4: dubbo.telemetry.v1alpha3.Metrics.providers:type_name -> dubbo.telemetry.v1alpha3.Metrics.MetricsProvider
+	19, // 5: dubbo.telemetry.v1alpha3.Metrics.enabled:type_name -> google.protobuf.BoolValue
+	6,  // 6: dubbo.telemetry.v1alpha3.Metrics.rules:type_name -> dubbo.telemetry.v1alpha3.MetricRule
+	0,  // 7: dubbo.telemetry.v1alpha3.MetricRule.metric:type_name -> dubbo.telemetry.v1alpha3.StandardMetric
+	1,  // 8: dubbo.telemetry.v1alpha3.MetricRule.scope:type_name -> dubbo.telemetry.v1alpha3.MetricScope
+	11, // 9: dubbo.telemetry.v1alpha3.MetricRule.tags:type_name -> dubbo.telemetry.v1alpha3.MetricRule.TagsEntry
+	2,  // 10: dubbo.telemetry.v1alpha3.TagOverride.action:type_name -> dubbo.telemetry.v1alpha3.TagOverride.Action
+	12, // 11: dubbo.telemetry.v1alpha3.Logging.providers:type_name -> dubbo.telemetry.v1alpha3.Logging.LoggingProvider
+	19, // 12: dubbo.telemetry.v1alpha3.Logging.disabled:type_name -> google.protobuf.BoolValue
+	13, // 13: dubbo.telemetry.v1alpha3.Logging.match:type_name -> dubbo.telemetry.v1alpha3.Logging.Match
+	14, // 14: dubbo.telemetry.v1alpha3.Logging.filter:type_name -> dubbo.telemetry.v1alpha3.Logging.Filter
+	15, // 15: dubbo.telemetry.v1alpha3.Logging.tags:type_name -> dubbo.telemetry.v1alpha3.Logging.Tag
+	16, // 16: dubbo.telemetry.v1alpha3.Tracing.providers:type_name -> dubbo.telemetry.v1alpha3.Tracing.TracingProvider
+	20, // 17: dubbo.telemetry.v1alpha3.Tracing.random_sampling_percentage:type_name -> google.protobuf.DoubleValue
+	19, // 18: dubbo.telemetry.v1alpha3.Tracing.disable_span_reporting:type_name -> google.protobuf.BoolValue
+	17, // 19: dubbo.telemetry.v1alpha3.Tracing.tags:type_name -> dubbo.telemetry.v1alpha3.Tracing.Tag
+	7,  // 20: dubbo.telemetry.v1alpha3.MetricRule.TagsEntry.value:type_name -> dubbo.telemetry.v1alpha3.TagOverride
+	3,  // 21: dubbo.telemetry.v1alpha3.Logging.Match.mode:type_name -> dubbo.telemetry.v1alpha3.Logging.Match.Mode
+	22, // [22:22] is the sub-list for method output_type
+	22, // [22:22] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_telemetry_v1alpha3_telemetry_proto_init() }
@@ -812,8 +1187,8 @@ func file_telemetry_v1alpha3_telemetry_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_telemetry_v1alpha3_telemetry_proto_rawDesc), len(file_telemetry_v1alpha3_telemetry_proto_rawDesc)),
-			NumEnums:      3,
-			NumMessages:   9,
+			NumEnums:      4,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

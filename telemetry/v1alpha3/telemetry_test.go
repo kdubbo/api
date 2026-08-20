@@ -71,3 +71,36 @@ func TestStandardMetricJSONNames(t *testing.T) {
 		})
 	}
 }
+
+func TestLoggingJSON(t *testing.T) {
+	var telemetry Telemetry
+	err := protojson.Unmarshal([]byte(`{
+		"logging": [{
+			"providers": [{"name": "otel"}],
+			"disabled": false,
+			"match": {"mode": "SERVER"},
+			"filter": {"expression": "!has(response.code) || response.code >= 500"},
+			"tags": [{"name": "environment", "value": "test"}]
+		}]
+	}`), &telemetry)
+	if err != nil {
+		t.Fatalf("unmarshal logging: %v", err)
+	}
+
+	logging := telemetry.GetLogging()[0]
+	if got := logging.GetProviders()[0].GetName(); got != "otel" {
+		t.Fatalf("provider = %q, want otel", got)
+	}
+	if got := logging.GetDisabled().GetValue(); got {
+		t.Fatalf("disabled = true, want false")
+	}
+	if got := logging.GetMatch().GetMode(); got != Logging_Match_SERVER {
+		t.Fatalf("mode = %s, want SERVER", got)
+	}
+	if got := logging.GetFilter().GetExpression(); got != "!has(response.code) || response.code >= 500" {
+		t.Fatalf("filter expression = %q", got)
+	}
+	if got := logging.GetTags()[0]; got.GetName() != "environment" || got.GetValue() != "test" {
+		t.Fatalf("tag = %q=%q, want environment=test", got.GetName(), got.GetValue())
+	}
+}

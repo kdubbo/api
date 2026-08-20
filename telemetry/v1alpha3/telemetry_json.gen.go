@@ -61,6 +61,61 @@ func (this *TagOverride) UnmarshalJSON(b []byte) error {
 	return TelemetryUnmarshaler.Unmarshal(bytes.NewReader(b), this)
 }
 
+// MarshalJSON is a custom marshaler for Logging
+func (this *Logging) MarshalJSON() ([]byte, error) {
+	str, err := TelemetryMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for Logging
+func (this *Logging) UnmarshalJSON(b []byte) error {
+	return TelemetryUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for Logging_LoggingProvider
+func (this *Logging_LoggingProvider) MarshalJSON() ([]byte, error) {
+	str, err := TelemetryMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for Logging_LoggingProvider
+func (this *Logging_LoggingProvider) UnmarshalJSON(b []byte) error {
+	return TelemetryUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for Logging_Match
+func (this *Logging_Match) MarshalJSON() ([]byte, error) {
+	str, err := TelemetryMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for Logging_Match
+func (this *Logging_Match) UnmarshalJSON(b []byte) error {
+	return TelemetryUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for Logging_Filter
+func (this *Logging_Filter) MarshalJSON() ([]byte, error) {
+	str, err := TelemetryMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for Logging_Filter
+func (this *Logging_Filter) UnmarshalJSON(b []byte) error {
+	return TelemetryUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
+// MarshalJSON is a custom marshaler for Logging_Tag
+func (this *Logging_Tag) MarshalJSON() ([]byte, error) {
+	str, err := TelemetryMarshaler.MarshalToString(this)
+	return []byte(str), err
+}
+
+// UnmarshalJSON is a custom unmarshaler for Logging_Tag
+func (this *Logging_Tag) UnmarshalJSON(b []byte) error {
+	return TelemetryUnmarshaler.Unmarshal(bytes.NewReader(b), this)
+}
+
 // MarshalJSON is a custom marshaler for Tracing
 func (this *Tracing) MarshalJSON() ([]byte, error) {
 	str, err := TelemetryMarshaler.MarshalToString(this)

@@ -70,6 +70,9 @@ message Telemetry {
 
   // Metrics configures metric generation for selected workloads.
   repeated Metrics metrics = 3;
+
+  // Logging configures access logging for selected workloads.
+  repeated Logging logging = 4;
 }
 
 // Metrics configures metric generation for selected workloads.
@@ -141,6 +144,59 @@ message TagOverride {
 
   // REQUIRED. Operation applied to the tag.
   Action action = 1;
+}
+
+// Logging configures access log generation for selected workloads.
+message Logging {
+  message LoggingProvider {
+    // REQUIRED. Name of the access log provider.
+    string name = 1;
+  }
+
+  // Match restricts access logs to one side of an Inherent RPC.
+  message Match {
+    // Mode selects which side of an Inherent RPC emits an access log.
+    enum Mode {
+      MODE_UNSPECIFIED = 0;
+      CLIENT = 1;
+      SERVER = 2;
+      CLIENT_AND_SERVER = 3;
+    }
+
+    // Reporter side selected for access logging.
+    Mode mode = 1;
+  }
+
+  // Filter selects access logs using a CEL expression.
+  message Filter {
+    // REQUIRED. CEL expression evaluated against access log attributes.
+    string expression = 1;
+  }
+
+  // Tag adds a static custom attribute to generated access logs.
+  message Tag {
+    // REQUIRED. Access log attribute name.
+    string name = 1;
+
+    // Static access log attribute value.
+    string value = 2;
+  }
+
+  // Providers used for access log reporting.
+  repeated LoggingProvider providers = 1;
+
+  // Disables access logging for selected workloads.
+  google.protobuf.BoolValue disabled = 2;
+
+  // Restricts access logs to a reporter side. When omitted, both client and
+  // server access logs are selected.
+  Match match = 3;
+
+  // Filters access logs using a CEL expression.
+  Filter filter = 4;
+
+  // Static custom attributes added to generated access logs.
+  repeated Tag tags = 5;
 }
 
 // Tracing configures tracing behavior for selected workloads.
